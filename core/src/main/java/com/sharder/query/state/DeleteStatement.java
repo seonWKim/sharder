@@ -1,5 +1,6 @@
 package com.sharder.query.state;
 
+import com.sharder.FirstStatement;
 import com.sharder.Statement;
 import com.sharder.StatementType;
 
@@ -8,7 +9,7 @@ import lombok.Getter;
 
 @Builder
 @Getter
-public class DeleteStatement extends Statement {
+public class DeleteStatement extends FirstStatement {
 
     private final String schemaName;
     private final String tableName;
@@ -22,5 +23,10 @@ public class DeleteStatement extends Statement {
     @Override
     public StatementType getStatementType() {
         return StatementType.QUERY_DELETE;
+    }
+
+    @Override
+    public String tableName() {
+        return tableName;
     }
 }

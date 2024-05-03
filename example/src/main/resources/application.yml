@@ -40,7 +40,7 @@ sharder:
         password: example
       shard:
         - type: mod
-          definition: user.id % 3 = 1
+          definition: members.id % 3 = 1
         - type: mod
           definition: order.id % 3 = 1
 
@@ -51,7 +51,7 @@ sharder:
         password: example
       shard:
         - type: mod
-          definition: user.id % 3 = 2
+          definition: members.id % 3 = 2
         - type: mod
           definition: order.id % 3 = 2
 
@@ -62,6 +62,6 @@ sharder:
         password: example
       shard:
         - type: mod
-          definition: user.id % 3 = 0
+          definition: members.id % 3 = 0
         - type: mod
           definition: order.id % 3 = 0

@@ -2,16 +2,16 @@ package com.sharder.query.state;
 
 import java.util.List;
 
-import com.sharder.Statement;
+import com.sharder.FirstStatement;
+import com.sharder.Nullable;
 import com.sharder.StatementType;
 
-import com.sharder.Nullable;
 import lombok.Builder;
 import lombok.Getter;
 
 @Builder
 @Getter
-public class SelectStatement extends Statement {
+public class SelectStatement extends FirstStatement {
     @Builder.Default
     private final boolean selectStar = false;
     @Builder.Default
@@ -28,5 +28,10 @@ public class SelectStatement extends Statement {
     @Override
     public StatementType getStatementType() {
         return StatementType.QUERY_SELECT;
+    }
+
+    @Override
+    public String tableName() {
+        return tableName;
     }
 }

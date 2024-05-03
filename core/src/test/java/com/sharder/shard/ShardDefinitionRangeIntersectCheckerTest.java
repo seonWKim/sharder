@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import com.sharder.Token;
 import com.sharder.TokenType;
 
-class ShardDefinitionRangeValidatorTest {
+class ShardDefinitionRangeIntersectCheckerTest {
 
     @Test
     void greater_than_same_value() {
@@ -32,12 +32,12 @@ class ShardDefinitionRangeValidatorTest {
         Token operator7 = new Token(TokenType.NOT_EQUAL, "!=", "!=", Token.NOT_FROM_USER_INPUT);
         Token value7 = new Token(TokenType.NUMBER, "10", 10, Token.NOT_FROM_USER_INPUT);
 
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator2, value2)).isTrue();
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator3, value3)).isTrue();
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator4, value4)).isFalse();
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator5, value5)).isFalse();
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator6, value6)).isFalse();
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator7, value7)).isTrue();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator2, value2)).isTrue();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator3, value3)).isTrue();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator4, value4)).isFalse();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator5, value5)).isFalse();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator6, value6)).isFalse();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator7, value7)).isTrue();
     }
 
     @Test
@@ -63,12 +63,12 @@ class ShardDefinitionRangeValidatorTest {
         Token operator7 = new Token(TokenType.NOT_EQUAL, "!=", "!=", Token.NOT_FROM_USER_INPUT);
         Token value7 = new Token(TokenType.NUMBER, "20", 20, Token.NOT_FROM_USER_INPUT);
 
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator2, value2)).isTrue();
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator3, value3)).isTrue();
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator4, value4)).isTrue();
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator5, value5)).isTrue();
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator6, value6)).isTrue();
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator7, value7)).isTrue();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator2, value2)).isTrue();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator3, value3)).isTrue();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator4, value4)).isTrue();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator5, value5)).isTrue();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator6, value6)).isTrue();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator7, value7)).isTrue();
     }
 
     @Test
@@ -94,12 +94,12 @@ class ShardDefinitionRangeValidatorTest {
         Token operator7 = new Token(TokenType.NOT_EQUAL, "!=", "!=", Token.NOT_FROM_USER_INPUT);
         Token value7 = new Token(TokenType.NUMBER, "5", 5, Token.NOT_FROM_USER_INPUT);
 
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator2, value2)).isTrue();
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator3, value3)).isTrue();
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator4, value4)).isFalse();
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator5, value5)).isFalse();
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator6, value6)).isFalse();
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator7, value7)).isTrue();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator2, value2)).isTrue();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator3, value3)).isTrue();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator4, value4)).isFalse();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator5, value5)).isFalse();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator6, value6)).isFalse();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator7, value7)).isTrue();
     }
 
     @Test
@@ -125,12 +125,12 @@ class ShardDefinitionRangeValidatorTest {
         Token operator7 = new Token(TokenType.NOT_EQUAL, "!=", "!=", Token.NOT_FROM_USER_INPUT);
         Token value7 = new Token(TokenType.NUMBER, "10", 10, Token.NOT_FROM_USER_INPUT);
 
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator2, value2)).isTrue();
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator3, value3)).isTrue();
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator4, value4)).isFalse();
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator5, value5)).isTrue();
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator6, value6)).isTrue();
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator7, value7)).isTrue();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator2, value2)).isTrue();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator3, value3)).isTrue();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator4, value4)).isFalse();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator5, value5)).isTrue();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator6, value6)).isTrue();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator7, value7)).isTrue();
     }
 
     @Test
@@ -156,12 +156,12 @@ class ShardDefinitionRangeValidatorTest {
         Token operator7 = new Token(TokenType.NOT_EQUAL, "!=", "!=", Token.NOT_FROM_USER_INPUT);
         Token value7 = new Token(TokenType.NUMBER, "20", 20, Token.NOT_FROM_USER_INPUT);
 
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator2, value2)).isTrue();
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator3, value3)).isTrue();
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator4, value4)).isTrue();
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator5, value5)).isTrue();
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator6, value6)).isTrue();
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator7, value7)).isTrue();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator2, value2)).isTrue();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator3, value3)).isTrue();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator4, value4)).isTrue();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator5, value5)).isTrue();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator6, value6)).isTrue();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator7, value7)).isTrue();
     }
 
     @Test
@@ -187,12 +187,12 @@ class ShardDefinitionRangeValidatorTest {
         Token operator7 = new Token(TokenType.NOT_EQUAL, "!=", "!=", Token.NOT_FROM_USER_INPUT);
         Token value7 = new Token(TokenType.NUMBER, "5", 5, Token.NOT_FROM_USER_INPUT);
 
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator2, value2)).isTrue();
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator3, value3)).isTrue();
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator4, value4)).isFalse();
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator5, value5)).isFalse();
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator6, value6)).isFalse();
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator7, value7)).isTrue();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator2, value2)).isTrue();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator3, value3)).isTrue();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator4, value4)).isFalse();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator5, value5)).isFalse();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator6, value6)).isFalse();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator7, value7)).isTrue();
     }
 
     @Test
@@ -218,12 +218,12 @@ class ShardDefinitionRangeValidatorTest {
         Token operator7 = new Token(TokenType.NOT_EQUAL, "!=", "!=", Token.NOT_FROM_USER_INPUT);
         Token value7 = new Token(TokenType.NUMBER, "10", 10, Token.NOT_FROM_USER_INPUT);
 
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator2, value2)).isTrue();
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator3, value3)).isTrue();
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator4, value4)).isFalse();
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator5, value5)).isFalse();
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator6, value6)).isFalse();
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator7, value7)).isTrue();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator2, value2)).isTrue();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator3, value3)).isTrue();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator4, value4)).isFalse();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator5, value5)).isFalse();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator6, value6)).isFalse();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator7, value7)).isTrue();
     }
 
     @Test
@@ -249,12 +249,12 @@ class ShardDefinitionRangeValidatorTest {
         Token operator7 = new Token(TokenType.NOT_EQUAL, "!=", "!=", Token.NOT_FROM_USER_INPUT);
         Token value7 = new Token(TokenType.NUMBER, "20", 20, Token.NOT_FROM_USER_INPUT);
 
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator2, value2)).isTrue();
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator3, value3)).isTrue();
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator4, value4)).isFalse();
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator5, value5)).isFalse();
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator6, value6)).isFalse();
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator7, value7)).isTrue();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator2, value2)).isTrue();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator3, value3)).isTrue();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator4, value4)).isFalse();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator5, value5)).isFalse();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator6, value6)).isFalse();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator7, value7)).isTrue();
     }
 
     @Test
@@ -280,12 +280,12 @@ class ShardDefinitionRangeValidatorTest {
         Token operator7 = new Token(TokenType.NOT_EQUAL, "!=", "!=", Token.NOT_FROM_USER_INPUT);
         Token value7 = new Token(TokenType.NUMBER, "5", 5, Token.NOT_FROM_USER_INPUT);
 
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator2, value2)).isTrue();
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator3, value3)).isTrue();
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator4, value4)).isTrue();
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator5, value5)).isTrue();
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator6, value6)).isTrue();
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator7, value7)).isTrue();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator2, value2)).isTrue();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator3, value3)).isTrue();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator4, value4)).isTrue();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator5, value5)).isTrue();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator6, value6)).isTrue();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator7, value7)).isTrue();
     }
 
     @Test
@@ -311,12 +311,12 @@ class ShardDefinitionRangeValidatorTest {
         Token operator7 = new Token(TokenType.NOT_EQUAL, "!=", "!=", Token.NOT_FROM_USER_INPUT);
         Token value7 = new Token(TokenType.NUMBER, "10", 10, Token.NOT_FROM_USER_INPUT);
 
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator2, value2)).isTrue();
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator3, value3)).isTrue();
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator4, value4)).isFalse();
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator5, value5)).isTrue();
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator6, value6)).isTrue();
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator7, value7)).isTrue();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator2, value2)).isTrue();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator3, value3)).isTrue();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator4, value4)).isFalse();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator5, value5)).isTrue();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator6, value6)).isTrue();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator7, value7)).isTrue();
     }
 
     @Test
@@ -342,12 +342,12 @@ class ShardDefinitionRangeValidatorTest {
         Token operator7 = new Token(TokenType.NOT_EQUAL, "!=", "!=", Token.NOT_FROM_USER_INPUT);
         Token value7 = new Token(TokenType.NUMBER, "20", 20, Token.NOT_FROM_USER_INPUT);
 
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator2, value2)).isTrue();
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator3, value3)).isTrue();
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator4, value4)).isFalse();
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator5, value5)).isFalse();
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator6, value6)).isFalse();
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator7, value7)).isTrue();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator2, value2)).isTrue();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator3, value3)).isTrue();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator4, value4)).isFalse();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator5, value5)).isFalse();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator6, value6)).isFalse();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator7, value7)).isTrue();
     }
 
     @Test
@@ -373,11 +373,11 @@ class ShardDefinitionRangeValidatorTest {
         Token operator7 = new Token(TokenType.NOT_EQUAL, "!=", "!=", Token.NOT_FROM_USER_INPUT);
         Token value7 = new Token(TokenType.NUMBER, "5", 5, Token.NOT_FROM_USER_INPUT);
 
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator2, value2)).isTrue();
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator3, value3)).isTrue();
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator4, value4)).isTrue();
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator5, value5)).isTrue();
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator6, value6)).isTrue();
-        assertThat(ShardDefinitionRangeValidator.validateRange(operator1, value1, operator7, value7)).isTrue();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator2, value2)).isTrue();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator3, value3)).isTrue();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator4, value4)).isTrue();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator5, value5)).isTrue();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator6, value6)).isTrue();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator7, value7)).isTrue();
     }
 }

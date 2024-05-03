@@ -2,7 +2,7 @@ package com.sharder.query.state;
 
 import java.util.List;
 
-import com.sharder.Statement;
+import com.sharder.FirstStatement;
 import com.sharder.StatementType;
 import com.sharder.Token;
 
@@ -11,7 +11,7 @@ import lombok.Getter;
 
 @Builder
 @Getter
-public class UpdateStatement extends Statement {
+public class UpdateStatement extends FirstStatement {
     private final String schemaName;
     private final String tableName;
     private final List<Token> columns;
@@ -25,5 +25,10 @@ public class UpdateStatement extends Statement {
     @Override
     public StatementType getStatementType() {
         return StatementType.QUERY_UPDATE;
+    }
+
+    @Override
+    public String tableName() {
+        return tableName;
     }
 }

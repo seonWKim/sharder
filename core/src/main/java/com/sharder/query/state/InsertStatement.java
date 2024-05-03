@@ -3,8 +3,8 @@ package com.sharder.query.state;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sharder.FirstStatement;
 import com.sharder.Nullable;
-import com.sharder.Statement;
 import com.sharder.StatementType;
 import com.sharder.Token;
 import com.sharder.query.state.expr.ConditionExpression;
@@ -12,7 +12,7 @@ import com.sharder.query.state.expr.ConditionExpression;
 import lombok.Getter;
 
 @Getter
-public class InsertStatement extends Statement {
+public class InsertStatement extends FirstStatement {
     public static InsertStatementBuilder builder() {return new InsertStatementBuilder();}
 
     private final List<Token> columns;
@@ -54,6 +54,11 @@ public class InsertStatement extends Statement {
     @Override
     public StatementType getStatementType() {
         return StatementType.QUERY_INSERT;
+    }
+
+    @Override
+    public String tableName() {
+        return tableName;
     }
 
     public static class InsertStatementBuilder {

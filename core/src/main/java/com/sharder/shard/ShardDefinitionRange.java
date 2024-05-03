@@ -77,7 +77,7 @@ public class ShardDefinitionRange implements ShardDefinition {
         }
 
         final TokenType type = condition.getToken().type();
-        if (condition.isSupportedOperator() && supportedOperators.contains(type)) {
+        if (condition.isSupportedOperator()) {
             final ConditionNode identifier = condition.getLeft();
             if (identifier == null) {
                 throw new IllegalArgumentException("Left node(identifier) should not be null");
@@ -86,15 +86,17 @@ public class ShardDefinitionRange implements ShardDefinition {
                 return true;
             }
 
-            final ConditionNode value = condition.getRight();
-            if (value == null) {
+            final ConditionNode valueNode = condition.getRight();
+            if (valueNode == null) {
                 throw new IllegalArgumentException("Right node(value) should not be null");
-            } else if (value.getToken().type() != value.getToken().type()) {
+            } else if (valueNode.getToken().type() != valueNode.getToken().type()) {
                 throw new IllegalArgumentException(
-                        "Value types mismatch: {} != {}" + value.getToken().type() + value.getToken().type());
+                        "Value types mismatch: {} != {}" + valueNode.getToken().type() + valueNode.getToken()
+                                                                                                  .type());
             }
 
-
+            return ShardDefinitionRangeIntersectChecker.intersects(operator, this.value,
+                                                                   condition.getToken(), valueNode.getToken());
         }
 
         if (condition.isLogicalOperator()) {

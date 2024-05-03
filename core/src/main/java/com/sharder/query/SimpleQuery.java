@@ -7,6 +7,7 @@ import static com.sharder.QueryType.SELECT;
 import java.util.List;
 
 import com.sharder.Expression;
+import com.sharder.FirstStatement;
 import com.sharder.Nullable;
 import com.sharder.QueryType;
 import com.sharder.Statement;
@@ -18,21 +19,26 @@ import com.sharder.query.state.WhereStatement;
 public class SimpleQuery {
 
     private final String queryString;
-    private final List<Statement> statements;
     private final QueryType queryType;
+    private final FirstStatement firstStatement;
     @Nullable
     private final Expression conditionExpression;
+
+    public static SimpleQuery of(String queryString) {
+        return new SimpleQuery(queryString);
+    }
 
     private SimpleQuery(String queryString) {
         this.queryString = queryString;
 
         List<Token> tokens = new QueryScanner(queryString).scanTokens();
-        this.statements = new QueryParser(tokens).parse();
+        List<Statement> statements = new QueryParser(tokens).parse();
         if (statements.isEmpty()) {
             throw new IllegalStateException("No statement found in the query");
         }
 
-        final StatementType type = statements.get(0).getStatementType();
+        firstStatement = (FirstStatement) statements.get(0);
+        final StatementType type = firstStatement.getStatementType();
         switch (type) {
             case QUERY_SELECT:
                 this.queryType = SELECT;
@@ -55,6 +61,10 @@ public class SimpleQuery {
         }
     }
 
+    public String tableName() {
+        return firstStatement.tableName();
+    }
+
     @Nullable
     private Expression getConditionExpression(List<Statement> statements) {
         List<Statement> whereStatements = statements.stream().filter(
@@ -66,10 +76,6 @@ public class SimpleQuery {
         } else {
             return null;
         }
-    }
-
-    public static SimpleQuery of(String queryString) {
-        return new SimpleQuery(queryString);
     }
 
     @Nullable

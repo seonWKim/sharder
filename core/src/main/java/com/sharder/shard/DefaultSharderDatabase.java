@@ -1,6 +1,34 @@
 package com.sharder.shard;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
-public record DefaultSharderDatabase(String databaseName, List<ShardDefinition> shardDefinitions)
-        implements SharderDatabase {}
+public class DefaultSharderDatabase implements SharderDatabase {
+    private String databaseName;
+    private List<ShardDefinition> shardDefinitions;
+
+    private Map<String, List<ShardDefinition>> shardDefinitionsByTableName;
+
+    public DefaultSharderDatabase(String databaseName, List<ShardDefinition> shardDefinitions) {
+        this.databaseName = databaseName;
+        this.shardDefinitions = shardDefinitions;
+        this.shardDefinitionsByTableName =
+                shardDefinitions.stream().collect(Collectors.groupingBy(ShardDefinition::tableName));
+    }
+
+    @Override
+    public String databaseName() {
+        return databaseName;
+    }
+
+    @Override
+    public List<ShardDefinition> shardDefinitions() {
+        return shardDefinitions;
+    }
+
+    @Override
+    public Map<String, List<ShardDefinition>> shardDefinitionsByTableName() {
+        return shardDefinitionsByTableName;
+    }
+}
