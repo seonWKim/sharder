@@ -4,13 +4,13 @@ import java.util.Map;
 
 import com.sharder.Nullable;
 
-public record SharderDatabases(Map<String, SharderDatabaseHolder> configs) {
+public record SharderDatabases(Map<String, SharderDatabaseImpl> configs) {
     public boolean exists(String key) {
         return configs.containsKey(key);
     }
 
     @Nullable
-    public SharderDatabaseHolder database(String key) {
+    public SharderDatabaseImpl database(String key) {
         return configs.get(key);
     }
 }

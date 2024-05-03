@@ -11,11 +11,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import com.sharder.config.SharderApplicationProperties.DataSourceInfo.DataSourceConfig;
-import com.sharder.config.record.SharderDatabaseHolder;
+import com.sharder.config.record.SharderDatabaseImpl;
 import com.sharder.config.record.SharderDatabases;
 import com.sharder.shard.ShardDefinition;
 import com.sharder.shard.ShardDefinitionMod;
-import com.sharder.shard.SharderDatabase;
 import com.zaxxer.hikari.HikariDataSource;
 
 import lombok.RequiredArgsConstructor;
@@ -28,7 +27,7 @@ public class DataSourceConfiguration {
 
     @Bean
     public SharderDatabases sharderDatabases() {
-        final Map<String, SharderDatabaseHolder> dataSources = new HashMap<>();
+        final Map<String, SharderDatabaseImpl> dataSources = new HashMap<>();
         for (Map.Entry<String, SharderApplicationProperties.DataSourceInfo> entry : sharderApplicationProperties.datasource()
                                                                                                                 .entrySet()) {
             final DataSourceConfig config = entry.getValue().config();
@@ -52,8 +51,7 @@ public class DataSourceConfiguration {
                         throw new IllegalArgumentException("Invalid shard definition type: " + cfg.type());
                     }).collect(Collectors.toList());
 
-            final SharderDatabase sharderDatabase = new SharderDatabase(name, shardDefinitions);
-            dataSources.put(name, new SharderDatabaseHolder(sharderDatabase, dataSource, jdbcTemplate));
+            dataSources.put(name, new SharderDatabaseImpl(name, shardDefinitions, dataSource, jdbcTemplate));
         }
         return new SharderDatabases(dataSources);
     }

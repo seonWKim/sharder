@@ -8,7 +8,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import com.sharder.shard.ShardDefinitionMod;
-import com.sharder.shard.SharderDatabase;
+import com.sharder.shard.DefaultSharderDatabase;
 
 class SimpleQueryShardMatcherTest {
 
@@ -16,10 +16,10 @@ class SimpleQueryShardMatcherTest {
 
     @Test
     void select_no_where_statement() {
-        final SharderDatabase shard1 =
-                new SharderDatabase("shard1", List.of(new ShardDefinitionMod("person.id % 2 = 0")));
-        final SharderDatabase shard2 =
-                new SharderDatabase("shard2", List.of(new ShardDefinitionMod("person.id % 2 = 1")));
+        final DefaultSharderDatabase shard1 =
+                new DefaultSharderDatabase("shard1", List.of(new ShardDefinitionMod("person.id % 2 = 0")));
+        final DefaultSharderDatabase shard2 =
+                new DefaultSharderDatabase("shard2", List.of(new ShardDefinitionMod("person.id % 2 = 1")));
 
         final String query = "SELECT * FROM person;";
         assertThat(matcher.match(query, shard1)).isTrue();
@@ -29,8 +29,8 @@ class SimpleQueryShardMatcherTest {
     @Test
     void select_no_shard_definition() {
         final String query = "SELECT * FROM person WHERE id = 1";
-        final SharderDatabase shard1 = new SharderDatabase("shard1", Collections.emptyList());
-        final SharderDatabase shard2 = new SharderDatabase("shard2", Collections.emptyList());
+        final DefaultSharderDatabase shard1 = new DefaultSharderDatabase("shard1", Collections.emptyList());
+        final DefaultSharderDatabase shard2 = new DefaultSharderDatabase("shard2", Collections.emptyList());
 
         assertThat(matcher.match(query, shard1)).isTrue();
         assertThat(matcher.match(query, shard2)).isTrue();
@@ -39,10 +39,10 @@ class SimpleQueryShardMatcherTest {
     @Test
     void select_no_where_statement_and_shard_definition() {
         final String query = "SELECT * FROM person;";
-        final SharderDatabase shard1 =
-                new SharderDatabase("shard1", List.of(new ShardDefinitionMod("person.id % 2 = 0")));
-        final SharderDatabase shard2 =
-                new SharderDatabase("shard2", List.of(new ShardDefinitionMod("person.id % 2 = 1")));
+        final DefaultSharderDatabase shard1 =
+                new DefaultSharderDatabase("shard1", List.of(new ShardDefinitionMod("person.id % 2 = 0")));
+        final DefaultSharderDatabase shard2 =
+                new DefaultSharderDatabase("shard2", List.of(new ShardDefinitionMod("person.id % 2 = 1")));
 
         assertThat(matcher.match(query, shard1)).isTrue();
         assertThat(matcher.match(query, shard2)).isTrue();
@@ -50,10 +50,10 @@ class SimpleQueryShardMatcherTest {
 
     @Test
     void select_where_statement_and_shard_definition_1() {
-        final SharderDatabase shard1 =
-                new SharderDatabase("shard1", List.of(new ShardDefinitionMod("person.id % 2 = 0")));
-        final SharderDatabase shard2 =
-                new SharderDatabase("shard2", List.of(new ShardDefinitionMod("person.id % 2 = 1")));
+        final DefaultSharderDatabase shard1 =
+                new DefaultSharderDatabase("shard1", List.of(new ShardDefinitionMod("person.id % 2 = 0")));
+        final DefaultSharderDatabase shard2 =
+                new DefaultSharderDatabase("shard2", List.of(new ShardDefinitionMod("person.id % 2 = 1")));
 
         final String query1 = "SELECT * FROM person WHERE id = 0";
         assertThat(matcher.match(query1, shard1)).isTrue();
@@ -86,8 +86,8 @@ class SimpleQueryShardMatcherTest {
 
     @Test
     void insert_no_shard_definition() {
-        final SharderDatabase shard1 = new SharderDatabase("shard1", Collections.emptyList());
-        final SharderDatabase shard2 = new SharderDatabase("shard2", Collections.emptyList());
+        final DefaultSharderDatabase shard1 = new DefaultSharderDatabase("shard1", Collections.emptyList());
+        final DefaultSharderDatabase shard2 = new DefaultSharderDatabase("shard2", Collections.emptyList());
 
         final String query = "INSERT INTO person (id, name) VALUES (1, 'Alice');";
         assertThat(matcher.match(query, shard1)).isTrue();
@@ -96,10 +96,10 @@ class SimpleQueryShardMatcherTest {
 
     @Test
     void insert_shard_definition_1() {
-        final SharderDatabase shard1 =
-                new SharderDatabase("shard1", List.of(new ShardDefinitionMod("person.id % 2 = 0")));
-        final SharderDatabase shard2 =
-                new SharderDatabase("shard2", List.of(new ShardDefinitionMod("person.id % 2 = 1")));
+        final DefaultSharderDatabase shard1 =
+                new DefaultSharderDatabase("shard1", List.of(new ShardDefinitionMod("person.id % 2 = 0")));
+        final DefaultSharderDatabase shard2 =
+                new DefaultSharderDatabase("shard2", List.of(new ShardDefinitionMod("person.id % 2 = 1")));
 
         final String query1 = "INSERT INTO person (id, name) VALUES (0, 'Alice');";
         assertThat(matcher.match(query1, shard1)).isTrue();

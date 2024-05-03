@@ -6,5 +6,5 @@ import com.sharder.shard.SharderDatabase;
 
 public interface QueryShardMatcher {
     boolean match(String query, SharderDatabase database);
-    List<SharderDatabase> match(String query, List<SharderDatabase> databases);
+    <T extends SharderDatabase> List<T> match(String query, List<T> databases);
 }

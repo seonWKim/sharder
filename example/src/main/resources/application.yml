@@ -40,9 +40,9 @@ sharder:
         password: example
       shard:
         - type: mod
-          definition: user.id % 3 = 0
+          definition: user.id % 3 = 1
         - type: mod
-          definition: order.id % 3 = 0
+          definition: order.id % 3 = 1
 
     db2:
       config:
@@ -51,9 +51,9 @@ sharder:
         password: example
       shard:
         - type: mod
-          definition: user.id % 3 = 1
+          definition: user.id % 3 = 2
         - type: mod
-          definition: order.id % 3 = 1
+          definition: order.id % 3 = 2
 
     db3:
       config:
@@ -62,6 +62,6 @@ sharder:
         password: example
       shard:
         - type: mod
-          definition: user.id % 3 = 2
+          definition: user.id % 3 = 0
         - type: mod
-          definition: order.id % 3 = 2
+          definition: order.id % 3 = 0

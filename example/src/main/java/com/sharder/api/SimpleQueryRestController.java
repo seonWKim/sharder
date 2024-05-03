@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import com.sharder.SimpleQueryService;
 
 import com.linecorp.armeria.common.HttpResponse;
+import com.linecorp.armeria.common.HttpStatus;
 import com.linecorp.armeria.server.annotation.Blocking;
 import com.linecorp.armeria.server.annotation.Delete;
 import com.linecorp.armeria.server.annotation.Post;
@@ -27,12 +28,12 @@ public class SimpleQueryRestController {
 
     @Post(SELECT_V1)
     public HttpResponse select(SimpleQueryRequest request) {
-        return HttpResponse.of(200);
+        return HttpResponse.ofJson(HttpStatus.OK, simpleQueryService.select(request.query()));
     }
 
     @Post(INSERT_V1)
     public HttpResponse insert(SimpleQueryRequest request) {
-        return HttpResponse.of(200);
+        return HttpResponse.ofJson(HttpStatus.OK, simpleQueryService.insert(request.query()));
     }
 
     @Put(UPDATE_V1)

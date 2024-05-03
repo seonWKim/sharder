@@ -22,14 +22,14 @@ public class SimpleQueryShardMatcher implements QueryShardMatcher {
     }
 
     @Override
-    public List<SharderDatabase> match(String query, List<SharderDatabase> databases) {
+    public <T extends SharderDatabase> List<T> match(String query, List<T> databases) {
         SimpleQuery simpleQuery = SimpleQuery.of(query);
         if (simpleQuery.conditionExpression() == null) {
             return databases;
         }
 
-        final List<SharderDatabase> result = new ArrayList<>();
-        for (SharderDatabase database : databases) {
+        final List<T> result = new ArrayList<>();
+        for (T database : databases) {
             if (match(simpleQuery, database)) {
                 result.add(database);
             }
