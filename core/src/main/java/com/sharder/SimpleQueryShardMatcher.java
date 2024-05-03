@@ -14,17 +14,17 @@ public class SimpleQueryShardMatcher implements QueryShardMatcher {
         }
 
         SimpleQuery simpleQuery = SimpleQuery.of(query);
-        if (!simpleQuery.hasWhereStatement()) {
+        if (simpleQuery.conditionExpression() == null) {
             return true;
         }
 
-        return database.shardDefinitions().stream().anyMatch(it -> it.match(simpleQuery.condition()));
+        return database.shardDefinitions().stream().anyMatch(it -> it.match(simpleQuery.conditionExpression()));
     }
 
     @Override
     public List<SharderDatabase> match(String query, List<SharderDatabase> databases) {
         SimpleQuery simpleQuery = SimpleQuery.of(query);
-        if (!simpleQuery.hasWhereStatement()) {
+        if (simpleQuery.conditionExpression() == null) {
             return databases;
         }
 
@@ -42,6 +42,6 @@ public class SimpleQueryShardMatcher implements QueryShardMatcher {
         if (database.shardDefinitions().isEmpty()) {
             return true;
         }
-        return database.shardDefinitions().stream().anyMatch(it -> it.match(simpleQuery.condition()));
+        return database.shardDefinitions().stream().anyMatch(it -> it.match(simpleQuery.conditionExpression()));
     }
 }

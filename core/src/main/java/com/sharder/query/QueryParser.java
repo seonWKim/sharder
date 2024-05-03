@@ -10,6 +10,7 @@ import com.sharder.Statement;
 import com.sharder.Token;
 import com.sharder.TokenType;
 import com.sharder.TokenTypeCategory;
+import com.sharder.query.state.InsertStatement;
 import com.sharder.query.state.SelectStatement;
 import com.sharder.query.state.WhereStatement;
 import com.sharder.query.state.expr.ConditionExpression;
@@ -30,13 +31,15 @@ public class QueryParser extends Parser {
     protected Statement statement() {
         if (match(TokenType.SELECT)) {
             return selectStatement();
+        } else if (match(TokenType.INSERT)) {
+            return insertStatement();
         }
         // TODO: insert, update, delete
 
         if (match(TokenType.WHERE)) {
             return whereStatement();
         }
-        
+
         // consume left overs
         return ExpressionStatement.builder().expression(expression()).build();
     }
@@ -65,7 +68,8 @@ public class QueryParser extends Parser {
         builder.fields(fields);
 
         consumeAndAdvance(TokenType.FROM, "Expect FROM keyword");
-        final Token schemaOrTable = consumeAndAdvance(TokenType.IDENTIFIER, "Expect schema or table databaseName");
+        final Token schemaOrTable = consumeAndAdvance(TokenType.IDENTIFIER,
+                                                      "Expect schema or table databaseName");
         builder.tableName(schemaOrTable.lexeme());
 
         if (match(TokenType.DOT)) {
@@ -76,6 +80,55 @@ public class QueryParser extends Parser {
             builder.tableName(table.lexeme());
         }
 
+        return builder.build();
+    }
+
+    /**
+     * e.g. INSERT INTO person (id, name) VALUES (1, 'Alice');
+     */
+    private Statement insertStatement() {
+        consumeAndAdvance(TokenType.INSERT, "Expect INSERT keyword");
+        consumeAndAdvance(TokenType.INTO, "Expect INTO keyword");
+
+        final InsertStatement.InsertStatementBuilder builder = InsertStatement.builder();
+        final Token schemaOrTable = consumeAndAdvance(TokenType.IDENTIFIER,
+                                                      "Expect schema or table databaseName");
+        final String tableName = schemaOrTable.lexeme();
+        if (match(TokenType.DOT)) {
+            advance();
+            final Token table = consumeAndAdvance(TokenType.IDENTIFIER, "Expect table databaseName");
+            builder.schemaName(schemaOrTable.lexeme()).tableName(table.lexeme());
+        } else {
+            builder.tableName(tableName);
+        }
+
+        // e.g. (id, name)
+        consumeAndAdvance(TokenType.LEFT_PAREN, "Expect opening parenthesis");
+        final List<Token> columns = new ArrayList<>();
+        while (matchWithAdvance(TokenType.IDENTIFIER)) {
+            columns.add(previous());
+
+            if (!matchWithAdvance(TokenType.COMMA)) {
+                break;
+            }
+        }
+        builder.columns(columns);
+        consumeAndAdvance(TokenType.RIGHT_PAREN, "Expect closing parenthesis");
+
+        // e.g. VALUES (1, 'Alice');
+        consumeAndAdvance(TokenType.VALUES, "Expect VALUES keyword");
+        consumeAndAdvance(TokenType.LEFT_PAREN, "Expect opening parenthesis");
+        final List<Token> values = new ArrayList<>();
+        while (matchWithAdvance(TokenType.NUMBER) || matchWithAdvance(TokenType.STRING)) {
+            values.add(previous());
+
+            if (!matchWithAdvance(TokenType.COMMA)) {
+                break;
+            }
+        }
+        consumeAndAdvance(TokenType.RIGHT_PAREN, "Expect closing parenthesis");
+
+        builder.values(values);
         return builder.build();
     }
 

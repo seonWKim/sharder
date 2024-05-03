@@ -9,6 +9,7 @@ import static com.sharder.TokenType.RIGHT_PAREN;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
@@ -18,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import com.sharder.ExpressionStatement;
 import com.sharder.Statement;
 import com.sharder.Token;
+import com.sharder.query.state.InsertStatement;
 import com.sharder.query.state.SelectStatement;
 import com.sharder.query.state.WhereStatement;
 import com.sharder.query.state.expr.SemicolonExpression;
@@ -30,16 +32,16 @@ class QueryParserTest {
         String selectQuery = "SELECT * FROM members;";
         QueryScanner queryScanner = new QueryScanner(selectQuery);
         QueryParser queryParser = new QueryParser(queryScanner.scanTokens());
-        List<Statement> queryStatement = queryParser.parse();
+        List<Statement> statement = queryParser.parse();
 
-        assertThat(queryStatement.get(0).getClass()).isEqualTo(SelectStatement.class);
-        final SelectStatement statement = (SelectStatement) queryStatement.get(0);
-        assertTrue(statement.isSelectStar());
-        assertThat(statement.getFields()).isEmpty();
-        assertThat(statement.getTableName()).isEqualTo("members");
+        assertThat(statement.get(0).getClass()).isEqualTo(SelectStatement.class);
+        final SelectStatement selectStatement = (SelectStatement) statement.get(0);
+        assertTrue(selectStatement.isSelectStar());
+        assertThat(selectStatement.getFields()).isEmpty();
+        assertThat(selectStatement.getTableName()).isEqualTo("members");
 
-        assertThat(queryStatement.get(1).getClass()).isEqualTo(ExpressionStatement.class);
-        final ExpressionStatement expressionStatement = (ExpressionStatement) queryStatement.get(1);
+        assertThat(statement.get(1).getClass()).isEqualTo(ExpressionStatement.class);
+        final ExpressionStatement expressionStatement = (ExpressionStatement) statement.get(1);
         assertThat(expressionStatement.getExpression().getClass()).isEqualTo(SemicolonExpression.class);
     }
 
@@ -48,14 +50,14 @@ class QueryParserTest {
         String selectQuery = "SELECT id, age, databaseName FROM members";
         QueryScanner queryScanner = new QueryScanner(selectQuery);
         QueryParser queryParser = new QueryParser(queryScanner.scanTokens());
-        List<Statement> queryStatement = queryParser.parse();
-        assertEquals(queryStatement.get(0).getClass(), SelectStatement.class);
+        List<Statement> statement = queryParser.parse();
+        assertEquals(statement.get(0).getClass(), SelectStatement.class);
 
-        final SelectStatement statement = (SelectStatement) queryStatement.get(0);
-        assertFalse(statement.isSelectStar());
-        assertThat(statement.getFields()).containsExactly("id", "age", "databaseName");
-        assertThat(statement.getSchemaName()).isNull();
-        assertThat(statement.getTableName()).isEqualTo("members");
+        final SelectStatement selectStatement = (SelectStatement) statement.get(0);
+        assertFalse(selectStatement.isSelectStar());
+        assertThat(selectStatement.getFields()).containsExactly("id", "age", "databaseName");
+        assertThat(selectStatement.getSchemaName()).isNull();
+        assertThat(selectStatement.getTableName()).isEqualTo("members");
     }
 
     @Test
@@ -63,17 +65,17 @@ class QueryParserTest {
         String selectQuery = "SELECT * FROM test.members;";
         QueryScanner queryScanner = new QueryScanner(selectQuery);
         QueryParser queryParser = new QueryParser(queryScanner.scanTokens());
-        List<Statement> queryStatement = queryParser.parse();
+        List<Statement> statement = queryParser.parse();
 
-        assertThat(queryStatement.get(0).getClass()).isEqualTo(SelectStatement.class);
-        final SelectStatement statement = (SelectStatement) queryStatement.get(0);
-        assertTrue(statement.isSelectStar());
-        assertThat(statement.getFields()).isEmpty();
-        assertThat(statement.getSchemaName()).isEqualTo("test");
-        assertThat(statement.getTableName()).isEqualTo("members");
+        assertThat(statement.get(0).getClass()).isEqualTo(SelectStatement.class);
+        final SelectStatement selectStatement = (SelectStatement) statement.get(0);
+        assertTrue(selectStatement.isSelectStar());
+        assertThat(selectStatement.getFields()).isEmpty();
+        assertThat(selectStatement.getSchemaName()).isEqualTo("test");
+        assertThat(selectStatement.getTableName()).isEqualTo("members");
 
-        assertThat(queryStatement.get(1).getClass()).isEqualTo(ExpressionStatement.class);
-        final ExpressionStatement expressionStatement = (ExpressionStatement) queryStatement.get(1);
+        assertThat(statement.get(1).getClass()).isEqualTo(ExpressionStatement.class);
+        final ExpressionStatement expressionStatement = (ExpressionStatement) statement.get(1);
         assertThat(expressionStatement.getExpression().getClass()).isEqualTo(SemicolonExpression.class);
     }
 
@@ -82,17 +84,17 @@ class QueryParserTest {
         String selectQuery = "SELECT * FROM test.members WHERE id = 10;";
         QueryScanner queryScanner = new QueryScanner(selectQuery);
         QueryParser queryParser = new QueryParser(queryScanner.scanTokens());
-        List<Statement> queryStatement = queryParser.parse();
+        List<Statement> statement = queryParser.parse();
 
-        assertThat(queryStatement.get(0).getClass()).isEqualTo(SelectStatement.class);
-        final SelectStatement statement = (SelectStatement) queryStatement.get(0);
-        assertTrue(statement.isSelectStar());
-        assertThat(statement.getFields()).isEmpty();
-        assertThat(statement.getSchemaName()).isEqualTo("test");
-        assertThat(statement.getTableName()).isEqualTo("members");
+        assertThat(statement.get(0).getClass()).isEqualTo(SelectStatement.class);
+        final SelectStatement selectStatement = (SelectStatement) statement.get(0);
+        assertTrue(selectStatement.isSelectStar());
+        assertThat(selectStatement.getFields()).isEmpty();
+        assertThat(selectStatement.getSchemaName()).isEqualTo("test");
+        assertThat(selectStatement.getTableName()).isEqualTo("members");
 
-        assertThat(queryStatement.get(1).getClass()).isEqualTo(WhereStatement.class);
-        final WhereStatement expressionStatement = (WhereStatement) queryStatement.get(1);
+        assertThat(statement.get(1).getClass()).isEqualTo(WhereStatement.class);
+        final WhereStatement expressionStatement = (WhereStatement) statement.get(1);
         assertThat(expressionStatement.getExpression().getClass()).isEqualTo(ConditionExpression.class);
         final ConditionExpression whereExpr = (ConditionExpression) expressionStatement.getExpression();
         assertThat(whereExpr.getTree().getTokens().size()).isEqualTo(3);
@@ -100,8 +102,8 @@ class QueryParserTest {
         assertThat(whereExpr.getTree().getTokens().get(1).type()).isEqualTo(EQUAL);
         assertThat(whereExpr.getTree().getTokens().get(2).type()).isEqualTo(NUMBER);
 
-        assertThat(queryStatement.get(2).getClass()).isEqualTo(ExpressionStatement.class);
-        final ExpressionStatement semicolonExpr = (ExpressionStatement) queryStatement.get(2);
+        assertThat(statement.get(2).getClass()).isEqualTo(ExpressionStatement.class);
+        final ExpressionStatement semicolonExpr = (ExpressionStatement) statement.get(2);
         assertThat(semicolonExpr.getExpression().getClass()).isEqualTo(SemicolonExpression.class);
     }
 
@@ -202,5 +204,71 @@ class QueryParserTest {
         assertThat(whereExpressionTokens.get(4).type()).isEqualTo(IDENTIFIER);
         assertThat(whereExpressionTokens.get(5).type()).isEqualTo(EQUAL);
         assertThat(whereExpressionTokens.get(6).type()).isEqualTo(NUMBER);
+    }
+
+    @Test
+    void insert_statement_test() {
+        String insertQuery = "INSERT INTO members (id, age) VALUES (1, 20);";
+        QueryScanner queryScanner = new QueryScanner(insertQuery);
+        QueryParser queryParser = new QueryParser(queryScanner.scanTokens());
+        List<Statement> statement = queryParser.parse();
+
+        assertThat(statement.get(0).getClass()).isEqualTo(InsertStatement.class);
+        final InsertStatement insertStatement = (InsertStatement) statement.get(0);
+
+        assertThat(insertStatement.getSchemaName()).isNull();
+        assertThat(insertStatement.getTableName()).isEqualTo("members");
+
+        assertThat(insertStatement.getColumns().get(0).type()).isEqualTo(IDENTIFIER);
+        assertThat(insertStatement.getColumns().get(0).lexeme()).isEqualTo("id");
+        assertThat(insertStatement.getValues().get(0).type()).isEqualTo(NUMBER);
+        assertThat(insertStatement.getValues().get(0).lexeme()).isEqualTo("1");
+
+        assertThat(insertStatement.getColumns().get(1).type()).isEqualTo(IDENTIFIER);
+        assertThat(insertStatement.getColumns().get(1).lexeme()).isEqualTo("age");
+        assertThat(insertStatement.getValues().get(1).type()).isEqualTo(NUMBER);
+        assertThat(insertStatement.getValues().get(1).lexeme()).isEqualTo("20");
+    }
+
+    @Test
+    void insert_statement_with_table_name_test() {
+        String insertQuery = "INSERT INTO test.members (id, age) VALUES (1, 20);";
+        QueryScanner queryScanner = new QueryScanner(insertQuery);
+        QueryParser queryParser = new QueryParser(queryScanner.scanTokens());
+        List<Statement> statement = queryParser.parse();
+
+        assertThat(statement.get(0).getClass()).isEqualTo(InsertStatement.class);
+        final InsertStatement insertStatement = (InsertStatement) statement.get(0);
+
+        assertThat(insertStatement.getSchemaName()).isEqualTo("test");
+        assertThat(insertStatement.getTableName()).isEqualTo("members");
+
+        assertThat(insertStatement.getColumns().get(0).type()).isEqualTo(IDENTIFIER);
+        assertThat(insertStatement.getColumns().get(0).lexeme()).isEqualTo("id");
+        assertThat(insertStatement.getValues().get(0).type()).isEqualTo(NUMBER);
+        assertThat(insertStatement.getValues().get(0).lexeme()).isEqualTo("1");
+
+        assertThat(insertStatement.getColumns().get(1).type()).isEqualTo(IDENTIFIER);
+        assertThat(insertStatement.getColumns().get(1).lexeme()).isEqualTo("age");
+        assertThat(insertStatement.getValues().get(1).type()).isEqualTo(NUMBER);
+        assertThat(insertStatement.getValues().get(1).lexeme()).isEqualTo("20");
+    }
+
+    @Test
+    void insert_statement_with_invalid_number_of_columns_1() {
+        String insertQuery = "INSERT INTO members (id, age) VALUES (1);";
+        QueryScanner queryScanner = new QueryScanner(insertQuery);
+        QueryParser queryParser = new QueryParser(queryScanner.scanTokens());
+
+        assertThrows(IllegalArgumentException.class, queryParser::parse);
+    }
+
+    @Test
+    void insert_statement_with_invalid_number_of_columns_2() {
+        String insertQuery = "INSERT INTO members (id) VALUES (1, 20);";
+        QueryScanner queryScanner = new QueryScanner(insertQuery);
+        QueryParser queryParser = new QueryParser(queryScanner.scanTokens());
+
+        assertThrows(IllegalArgumentException.class, queryParser::parse);
     }
 }

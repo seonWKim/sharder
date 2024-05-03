@@ -22,7 +22,6 @@ public class SelectStatement extends Statement {
 
     @Override
     public <R> R accept(Visitor<R> visitor) {
-
         return visitor.visitStatement(this, StatementType.QUERY_SELECT);
     }
 

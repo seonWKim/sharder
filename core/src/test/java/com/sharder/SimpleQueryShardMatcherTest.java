@@ -15,70 +15,98 @@ class SimpleQueryShardMatcherTest {
     SimpleQueryShardMatcher matcher = new SimpleQueryShardMatcher();
 
     @Test
-    void no_where_statement() {
-        final String query = "SELECT * FROM person;";
-        final List<SharderDatabase> databases =
-                List.of(new SharderDatabase("shard1",
-                                            List.of(new ShardDefinitionMod("person.id % 2 = 0"))),
-                        new SharderDatabase("shard2",
-                                            List.of(new ShardDefinitionMod("person.id % 2 = 1"))));
+    void select_no_where_statement() {
+        final SharderDatabase shard1 =
+                new SharderDatabase("shard1", List.of(new ShardDefinitionMod("person.id % 2 = 0")));
+        final SharderDatabase shard2 =
+                new SharderDatabase("shard2", List.of(new ShardDefinitionMod("person.id % 2 = 1")));
 
-        assertThat(matcher.match(query, databases)).isEqualTo(databases);
+        final String query = "SELECT * FROM person;";
+        assertThat(matcher.match(query, shard1)).isTrue();
+        assertThat(matcher.match(query, shard2)).isTrue();
     }
 
     @Test
-    void no_shard_definition() {
+    void select_no_shard_definition() {
         final String query = "SELECT * FROM person WHERE id = 1";
-        final List<SharderDatabase> databases = List.of(
-                new SharderDatabase("shard1", Collections.emptyList()),
-                new SharderDatabase("shard2", Collections.emptyList()));
+        final SharderDatabase shard1 = new SharderDatabase("shard1", Collections.emptyList());
+        final SharderDatabase shard2 = new SharderDatabase("shard2", Collections.emptyList());
 
-        assertThat(matcher.match(query, databases)).isEqualTo(databases);
+        assertThat(matcher.match(query, shard1)).isTrue();
+        assertThat(matcher.match(query, shard2)).isTrue();
     }
 
     @Test
-    void no_where_statement_and_shard_definition() {
+    void select_no_where_statement_and_shard_definition() {
         final String query = "SELECT * FROM person;";
-        final List<SharderDatabase> databases = List.of(
-                new SharderDatabase("shard1", Collections.emptyList()),
-                new SharderDatabase("shard2", Collections.emptyList()));
+        final SharderDatabase shard1 =
+                new SharderDatabase("shard1", List.of(new ShardDefinitionMod("person.id % 2 = 0")));
+        final SharderDatabase shard2 =
+                new SharderDatabase("shard2", List.of(new ShardDefinitionMod("person.id % 2 = 1")));
 
-        assertThat(matcher.match(query, databases)).isEqualTo(databases);
+        assertThat(matcher.match(query, shard1)).isTrue();
+        assertThat(matcher.match(query, shard2)).isTrue();
     }
 
     @Test
-    void where_statement_and_shard_definition_1() {
-        final List<SharderDatabase> databases =
-                List.of(new SharderDatabase("shard1",
-                                            List.of(new ShardDefinitionMod("person.id % 2 = 0"))),
-                        new SharderDatabase("shard2",
-                                            List.of(new ShardDefinitionMod("person.id % 2 = 1"))));
+    void select_where_statement_and_shard_definition_1() {
+        final SharderDatabase shard1 =
+                new SharderDatabase("shard1", List.of(new ShardDefinitionMod("person.id % 2 = 0")));
+        final SharderDatabase shard2 =
+                new SharderDatabase("shard2", List.of(new ShardDefinitionMod("person.id % 2 = 1")));
 
         final String query1 = "SELECT * FROM person WHERE id = 0";
-        final List<SharderDatabase> result1 = matcher.match(query1, databases);
-        assertThat(result1.size()).isEqualTo(1);
-        assertThat(result1.get(0).databaseName()).isEqualTo("shard1");
+        assertThat(matcher.match(query1, shard1)).isTrue();
+        assertThat(matcher.match(query1, shard2)).isFalse();
 
         final String query2 = "SELECT * FROM person WHERE id = 1";
-        final List<SharderDatabase> result2 = matcher.match(query2, databases);
-        assertThat(result2.size()).isEqualTo(1);
-        assertThat(result2.get(0).databaseName()).isEqualTo("shard2");
+        assertThat(matcher.match(query2, shard1)).isFalse();
+        assertThat(matcher.match(query2, shard2)).isTrue();
 
         final String query3 = "SELECT * FROM person WHERE id = 3 OR id = 4";
-        final List<SharderDatabase> result3 = matcher.match(query3, databases);
-        assertThat(result3.size()).isEqualTo(2);
+        assertThat(matcher.match(query3, shard1)).isTrue();
+        assertThat(matcher.match(query3, shard2)).isTrue();
 
         final String query4 = "SELECT * FROM person WHERE id = 3 AND id = 4";
-        final List<SharderDatabase> result4 = matcher.match(query4, databases);
-        assertThat(result4.size()).isEqualTo(0);
+        assertThat(matcher.match(query4, shard1)).isFalse();
+        assertThat(matcher.match(query4, shard2)).isFalse();
 
         final String query5 = "SELECT * FROM person WHERE id = 0 AND name = 'Alice'";
-        final List<SharderDatabase> result5 = matcher.match(query5, databases);
-        assertThat(result5.size()).isEqualTo(1);
-        assertThat(result5.get(0).databaseName()).isEqualTo("shard1");
+        assertThat(matcher.match(query5, shard1)).isTrue();
+        assertThat(matcher.match(query5, shard2)).isFalse();
 
         final String query6 = "SELECT * FROM person WHERE name = 'Alice'";
-        final List<SharderDatabase> result6 = matcher.match(query6, databases);
-        assertThat(result6.size()).isEqualTo(2);
+        assertThat(matcher.match(query6, shard1)).isTrue();
+        assertThat(matcher.match(query6, shard2)).isTrue();
+
+        final String query7 = "SELECT * FROM person WHERE id = 0 OR name = 'Alice'";
+        assertThat(matcher.match(query7, shard1)).isTrue();
+        assertThat(matcher.match(query7, shard2)).isTrue();
+    }
+
+    @Test
+    void insert_no_shard_definition() {
+        final SharderDatabase shard1 = new SharderDatabase("shard1", Collections.emptyList());
+        final SharderDatabase shard2 = new SharderDatabase("shard2", Collections.emptyList());
+
+        final String query = "INSERT INTO person (id, name) VALUES (1, 'Alice');";
+        assertThat(matcher.match(query, shard1)).isTrue();
+        assertThat(matcher.match(query, shard2)).isTrue();
+    }
+
+    @Test
+    void insert_shard_definition_1() {
+        final SharderDatabase shard1 =
+                new SharderDatabase("shard1", List.of(new ShardDefinitionMod("person.id % 2 = 0")));
+        final SharderDatabase shard2 =
+                new SharderDatabase("shard2", List.of(new ShardDefinitionMod("person.id % 2 = 1")));
+
+        final String query1 = "INSERT INTO person (id, name) VALUES (0, 'Alice');";
+        assertThat(matcher.match(query1, shard1)).isTrue();
+        assertThat(matcher.match(query1, shard2)).isFalse();
+
+        final String query2 = "INSERT INTO person (id, name) VALUES (1, 'Alice');";
+        assertThat(matcher.match(query2, shard1)).isFalse();
+        assertThat(matcher.match(query2, shard2)).isTrue();
     }
 }
