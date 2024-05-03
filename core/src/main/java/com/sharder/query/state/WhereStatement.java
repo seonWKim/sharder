@@ -9,7 +9,6 @@ import lombok.Getter;
 
 @Builder
 @Getter
-
 public class WhereStatement extends Statement {
 
     private final Expression expression;

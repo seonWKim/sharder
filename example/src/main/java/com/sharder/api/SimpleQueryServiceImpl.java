@@ -26,8 +26,7 @@ public class SimpleQueryServiceImpl implements SimpleQueryService {
 
     @Override
     public List<Map<String, Object>> select(String query) {
-        final List<SharderDatabaseImpl> matchedDatabases = shardMatcher.match(query, databases);
-
+        final List<SharderDatabaseImpl> matchedDatabases = findMatchedDatabases(query);
         final List<Map<String, Object>> result = new ArrayList<>();
         for (var database : matchedDatabases) {
             log.info("Querying database: {}", database.databaseName());
@@ -40,11 +39,10 @@ public class SimpleQueryServiceImpl implements SimpleQueryService {
 
     @Override
     public boolean insert(String query) {
-        final List<SharderDatabaseImpl> matchedDatabases = shardMatcher.match(query, databases);
-
+        final List<SharderDatabaseImpl> matchedDatabases = findMatchedDatabases(query);
         for (var database : matchedDatabases) {
             log.info("Inserting into database: {}", database.databaseName());
-            database.jdbcTemplate().execute(query);
+        database.jdbcTemplate().execute(query);
         }
 
         return true;
@@ -52,7 +50,13 @@ public class SimpleQueryServiceImpl implements SimpleQueryService {
 
     @Override
     public boolean update(String query) {
-        // TODO
+        final List<SharderDatabaseImpl> matchedDatabases = findMatchedDatabases(query);
+        for (var database : matchedDatabases) {
+            log.info("Updating database: {}", database.databaseName());
+            final int result = database.jdbcTemplate().update(query);
+            log.info("Updated {} rows in database: {}", result, database.databaseName());
+        }
+
         return true;
     }
 
@@ -60,5 +64,9 @@ public class SimpleQueryServiceImpl implements SimpleQueryService {
     public boolean delete(String query) {
         // TODO
         return true;
+    }
+
+    private List<SharderDatabaseImpl> findMatchedDatabases(String query) {
+        return shardMatcher.match(query, databases);
     }
 }

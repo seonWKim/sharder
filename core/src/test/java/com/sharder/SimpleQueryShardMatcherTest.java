@@ -95,7 +95,7 @@ class SimpleQueryShardMatcherTest {
     }
 
     @Test
-    void insert_shard_definition_1() {
+    void insert_with_shard_definition() {
         final DefaultSharderDatabase shard1 =
                 new DefaultSharderDatabase("shard1", List.of(new ShardDefinitionMod("person.id % 2 = 0")));
         final DefaultSharderDatabase shard2 =
@@ -108,5 +108,55 @@ class SimpleQueryShardMatcherTest {
         final String query2 = "INSERT INTO person (id, name) VALUES (1, 'Alice');";
         assertThat(matcher.match(query2, shard1)).isFalse();
         assertThat(matcher.match(query2, shard2)).isTrue();
+    }
+
+    @Test
+    void update_no_shard_definition() {
+        final DefaultSharderDatabase shard1 = new DefaultSharderDatabase("shard1", Collections.emptyList());
+        final DefaultSharderDatabase shard2 = new DefaultSharderDatabase("shard2", Collections.emptyList());
+
+        final String query = "UPDATE person SET name = 'Alice' WHERE id = 1;";
+        assertThat(matcher.match(query, shard1)).isTrue();
+        assertThat(matcher.match(query, shard2)).isTrue();
+    }
+
+    @Test
+    void update_with_shard_definition() {
+        final DefaultSharderDatabase shard1 =
+                new DefaultSharderDatabase("shard1", List.of(new ShardDefinitionMod("person.id % 2 = 0")));
+        final DefaultSharderDatabase shard2 =
+                new DefaultSharderDatabase("shard2", List.of(new ShardDefinitionMod("person.id % 2 = 1")));
+
+        final String query1 = "UPDATE person SET name = 'Alice' WHERE id = 0;";
+        assertThat(matcher.match(query1, shard1)).isTrue();
+        assertThat(matcher.match(query1, shard2)).isFalse();
+
+        final String query2 = "UPDATE person SET name = 'Alice' WHERE id = 1;";
+        assertThat(matcher.match(query2, shard1)).isFalse();
+        assertThat(matcher.match(query2, shard2)).isTrue();
+
+        final String query3 = "UPDATE person SET name = 'Alice', age = 20 WHERE id = 1;";
+        assertThat(matcher.match(query3, shard1)).isFalse();
+        assertThat(matcher.match(query3, shard2)).isTrue();
+
+        final String query4 = "UPDATE person SET name = 'Alice', age = 20 WHERE id = 0 OR id = 1;";
+        assertThat(matcher.match(query4, shard1)).isTrue();
+        assertThat(matcher.match(query4, shard2)).isTrue();
+
+        final String query5 = "UPDATE person SET name = 'Alice' WHERE id = 0 AND name = 'Alice';";
+        assertThat(matcher.match(query5, shard1)).isTrue();
+        assertThat(matcher.match(query5, shard2)).isFalse();
+
+        final String query6 = "UPDATE person SET name = 'Alice' WHERE name = 'Alice';";
+        assertThat(matcher.match(query6, shard1)).isTrue();
+        assertThat(matcher.match(query6, shard2)).isTrue();
+
+        final String query7 = "UPDATE person SET name = 'Alice' WHERE id = 0 OR name = 'Alice';";
+        assertThat(matcher.match(query7, shard1)).isTrue();
+        assertThat(matcher.match(query7, shard2)).isTrue();
+
+        final String query8 = "UPDATE person SET name = 'Alice' WHERE id = 0 AND id = 1";
+        assertThat(matcher.match(query8, shard1)).isFalse();
+        assertThat(matcher.match(query8, shard2)).isFalse();
     }
 }

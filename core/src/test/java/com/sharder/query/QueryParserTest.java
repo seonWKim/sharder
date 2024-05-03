@@ -6,6 +6,7 @@ import static com.sharder.TokenType.IDENTIFIER;
 import static com.sharder.TokenType.LEFT_PAREN;
 import static com.sharder.TokenType.NUMBER;
 import static com.sharder.TokenType.RIGHT_PAREN;
+import static com.sharder.TokenType.STRING;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -21,6 +22,7 @@ import com.sharder.Statement;
 import com.sharder.Token;
 import com.sharder.query.state.InsertStatement;
 import com.sharder.query.state.SelectStatement;
+import com.sharder.query.state.UpdateStatement;
 import com.sharder.query.state.WhereStatement;
 import com.sharder.query.state.expr.SemicolonExpression;
 import com.sharder.query.state.expr.ConditionExpression;
@@ -207,7 +209,7 @@ class QueryParserTest {
     }
 
     @Test
-    void insert_statement_test() {
+    void insert_statement_test_table_name_only() {
         String insertQuery = "INSERT INTO members (id, age) VALUES (1, 20);";
         QueryScanner queryScanner = new QueryScanner(insertQuery);
         QueryParser queryParser = new QueryParser(queryScanner.scanTokens());
@@ -231,7 +233,7 @@ class QueryParserTest {
     }
 
     @Test
-    void insert_statement_with_table_name_test() {
+    void insert_statement_test_with_schema_name() {
         String insertQuery = "INSERT INTO test.members (id, age) VALUES (1, 20);";
         QueryScanner queryScanner = new QueryScanner(insertQuery);
         QueryParser queryParser = new QueryParser(queryScanner.scanTokens());
@@ -270,5 +272,84 @@ class QueryParserTest {
         QueryParser queryParser = new QueryParser(queryScanner.scanTokens());
 
         assertThrows(IllegalArgumentException.class, queryParser::parse);
+    }
+
+    @Test
+    void update_statement_test_table_name_ony() {
+        String updateQuery = "UPDATE members SET name = 'Alice', age = 20;";
+        QueryScanner queryScanner = new QueryScanner(updateQuery);
+        QueryParser queryParser = new QueryParser(queryScanner.scanTokens());
+        List<Statement> statement = queryParser.parse();
+
+        assertThat(statement.get(0).getClass()).isEqualTo(UpdateStatement.class);
+        final UpdateStatement updateStatement = (UpdateStatement) statement.get(0);
+
+        assertThat(updateStatement.getSchemaName()).isNull();
+        assertThat(updateStatement.getTableName()).isEqualTo("members");
+
+        assertThat(updateStatement.getColumns().get(0).type()).isEqualTo(IDENTIFIER);
+        assertThat(updateStatement.getColumns().get(0).lexeme()).isEqualTo("name");
+        assertThat(updateStatement.getValues().get(0).type()).isEqualTo(STRING);
+        assertThat(updateStatement.getValues().get(0).lexeme()).isEqualTo("'Alice'");
+
+        assertThat(updateStatement.getColumns().get(1).type()).isEqualTo(IDENTIFIER);
+        assertThat(updateStatement.getColumns().get(1).lexeme()).isEqualTo("age");
+        assertThat(updateStatement.getValues().get(1).type()).isEqualTo(NUMBER);
+        assertThat(updateStatement.getValues().get(1).lexeme()).isEqualTo("20");
+    }
+
+    @Test
+    void update_statement_test_with_schema_name() {
+        String updateQuery = "UPDATE test.members SET name = 'Alice', age = 20;";
+        QueryScanner queryScanner = new QueryScanner(updateQuery);
+        QueryParser queryParser = new QueryParser(queryScanner.scanTokens());
+        List<Statement> statement = queryParser.parse();
+
+        assertThat(statement.get(0).getClass()).isEqualTo(UpdateStatement.class);
+        final UpdateStatement updateStatement = (UpdateStatement) statement.get(0);
+        assertThat(updateStatement.getSchemaName()).isEqualTo("test");
+        assertThat(updateStatement.getTableName()).isEqualTo("members");
+
+        assertThat(updateStatement.getColumns().get(0).type()).isEqualTo(IDENTIFIER);
+        assertThat(updateStatement.getColumns().get(0).lexeme()).isEqualTo("name");
+        assertThat(updateStatement.getValues().get(0).type()).isEqualTo(STRING);
+        assertThat(updateStatement.getValues().get(0).lexeme()).isEqualTo("'Alice'");
+
+        assertThat(updateStatement.getColumns().get(1).type()).isEqualTo(IDENTIFIER);
+        assertThat(updateStatement.getColumns().get(1).lexeme()).isEqualTo("age");
+        assertThat(updateStatement.getValues().get(1).type()).isEqualTo(NUMBER);
+        assertThat(updateStatement.getValues().get(1).lexeme()).isEqualTo("20");
+    }
+
+    @Test
+    void update_statement_with_where_expression() {
+        String updateQuery = "UPDATE members SET name = 'Alice', age = 20 WHERE id = 10;";
+        QueryScanner queryScanner = new QueryScanner(updateQuery);
+        QueryParser queryParser = new QueryParser(queryScanner.scanTokens());
+        List<Statement> statement = queryParser.parse();
+
+        assertThat(statement.get(0).getClass()).isEqualTo(UpdateStatement.class);
+        final UpdateStatement updateStatement = (UpdateStatement) statement.get(0);
+        assertThat(updateStatement.getSchemaName()).isNull();
+        assertThat(updateStatement.getTableName()).isEqualTo("members");
+
+        assertThat(updateStatement.getColumns().get(0).type()).isEqualTo(IDENTIFIER);
+        assertThat(updateStatement.getColumns().get(0).lexeme()).isEqualTo("name");
+        assertThat(updateStatement.getValues().get(0).type()).isEqualTo(STRING);
+        assertThat(updateStatement.getValues().get(0).lexeme()).isEqualTo("'Alice'");
+
+        assertThat(updateStatement.getColumns().get(1).type()).isEqualTo(IDENTIFIER);
+        assertThat(updateStatement.getColumns().get(1).lexeme()).isEqualTo("age");
+        assertThat(updateStatement.getValues().get(1).type()).isEqualTo(NUMBER);
+        assertThat(updateStatement.getValues().get(1).lexeme()).isEqualTo("20");
+
+        assertThat(statement.get(1).getClass()).isEqualTo(WhereStatement.class);
+        final WhereStatement whereStatement = (WhereStatement) statement.get(1);
+        assertThat(whereStatement.getExpression().getClass()).isEqualTo(ConditionExpression.class);
+        final ConditionExpression conditionExpression = (ConditionExpression) whereStatement.getExpression();
+        assertThat(conditionExpression.getTree().getTokens().size()).isEqualTo(3);
+        assertThat(conditionExpression.getTree().getTokens().get(0).type()).isEqualTo(IDENTIFIER);
+        assertThat(conditionExpression.getTree().getTokens().get(1).type()).isEqualTo(EQUAL);
+        assertThat(conditionExpression.getTree().getTokens().get(2).type()).isEqualTo(NUMBER);
     }
 }

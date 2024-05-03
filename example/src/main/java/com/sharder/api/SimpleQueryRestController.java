@@ -38,7 +38,7 @@ public class SimpleQueryRestController {
 
     @Put(UPDATE_V1)
     public HttpResponse update(SimpleQueryRequest request) {
-        return HttpResponse.of(200);
+        return HttpResponse.ofJson(HttpStatus.OK, simpleQueryService.update(request.query()));
     }
 
     @Delete(DELETE_V1)

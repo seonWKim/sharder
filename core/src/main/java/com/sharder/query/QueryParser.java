@@ -11,10 +11,14 @@ import com.sharder.Token;
 import com.sharder.TokenType;
 import com.sharder.TokenTypeCategory;
 import com.sharder.query.state.InsertStatement;
+import com.sharder.query.state.InsertStatement.InsertStatementBuilder;
 import com.sharder.query.state.SelectStatement;
+import com.sharder.query.state.UpdateStatement;
 import com.sharder.query.state.WhereStatement;
 import com.sharder.query.state.expr.ConditionExpression;
 import com.sharder.query.state.expr.SemicolonExpression;
+
+import lombok.val;
 
 /**
  * Parse query language. Supports SELECT, INSERT, UPDATE, DELETE statements including WHERE clause.<p>
@@ -29,19 +33,14 @@ public class QueryParser extends Parser {
 
     @Override
     protected Statement statement() {
-        if (match(TokenType.SELECT)) {
-            return selectStatement();
-        } else if (match(TokenType.INSERT)) {
-            return insertStatement();
-        }
-        // TODO: insert, update, delete
-
-        if (match(TokenType.WHERE)) {
-            return whereStatement();
-        }
-
-        // consume left overs
-        return ExpressionStatement.builder().expression(expression()).build();
+        Token current = peek();
+        return switch (current.type()) {
+            case SELECT -> selectStatement();
+            case INSERT -> insertStatement();
+            case UPDATE -> updateStatement();
+            case WHERE -> whereStatement();
+            default -> ExpressionStatement.builder().expression(expression()).build();
+        };
     }
 
     /**
@@ -129,6 +128,43 @@ public class QueryParser extends Parser {
         consumeAndAdvance(TokenType.RIGHT_PAREN, "Expect closing parenthesis");
 
         builder.values(values);
+        return builder.build();
+    }
+
+    /**
+     * e.g. UPDATE members SET databaseName = 'Alice', age = 20
+     * Where statement will not be parsed here
+     */
+    private Statement updateStatement() {
+        consumeAndAdvance(TokenType.UPDATE, "Expect UPDATE keyword");
+
+        final UpdateStatement.UpdateStatementBuilder builder = UpdateStatement.builder();
+        final Token schemaOrTable =
+                consumeAndAdvance(TokenType.IDENTIFIER, "Expect schema or table databaseName");
+        final String tableName = schemaOrTable.lexeme();
+        if (match(TokenType.DOT)) {
+            advance();
+            final Token table = consumeAndAdvance(TokenType.IDENTIFIER, "Expect table databaseName");
+            builder.schemaName(schemaOrTable.lexeme()).tableName(table.lexeme());
+        } else {
+            builder.tableName(tableName);
+        }
+
+        consumeAndAdvance(TokenType.SET, "Expect SET keyword");
+
+        final List<Token> columns = new ArrayList<>();
+        final List<Token> values = new ArrayList<>();
+        while (matchWithAdvance(TokenType.IDENTIFIER)) {
+            columns.add(previous());
+            consumeAndAdvance(TokenType.EQUAL, "Expect equal sign");
+            values.add(advance());
+
+            if (!matchWithAdvance(TokenType.COMMA)) {
+                break;
+            }
+        }
+        builder.columns(columns).values(values);
+
         return builder.build();
     }
 

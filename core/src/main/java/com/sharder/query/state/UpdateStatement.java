@@ -1,14 +1,22 @@
 package com.sharder.query.state;
 
+import java.util.List;
+
 import com.sharder.Statement;
 import com.sharder.StatementType;
+import com.sharder.Token;
 
 import lombok.Builder;
 import lombok.Getter;
 
 @Builder
 @Getter
-class UpdateStatement extends Statement {
+public class UpdateStatement extends Statement {
+    private final String schemaName;
+    private final String tableName;
+    private final List<Token> columns;
+    private final List<Token> values;
+
     @Override
     public <R> R accept(Visitor<R> visitor) {
         return visitor.visitStatement(this, StatementType.QUERY_UPDATE);
