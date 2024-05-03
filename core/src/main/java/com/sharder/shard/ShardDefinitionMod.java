@@ -60,12 +60,12 @@ public class ShardDefinitionMod implements ShardDefinition {
     }
 
     @Override
-    public boolean match(Expression condition) {
-        if (condition instanceof ConditionExpression expression) {
+    public boolean match(Expression conditionExpression) {
+        if (conditionExpression instanceof ConditionExpression expression) {
             return match(expression.getTree().getRoot());
         }
 
-        throw new IllegalArgumentException("Unsupported expression type: " + condition.getClass());
+        throw new IllegalArgumentException("Unsupported expression type: " + conditionExpression.getExpressionType());
     }
 
     /**
@@ -77,7 +77,6 @@ public class ShardDefinitionMod implements ShardDefinition {
         }
 
         final TokenType type = condition.getToken().type();
-
         if (condition.isSupportedOperator()) {
             final ConditionNode identifier = condition.getLeft();
             if (identifier == null) {

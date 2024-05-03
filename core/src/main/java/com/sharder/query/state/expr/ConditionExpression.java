@@ -4,20 +4,25 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import com.sharder.Expression;
 import com.sharder.ExpressionType;
+import com.sharder.Nullable;
 import com.sharder.Token;
 import com.sharder.TokenType;
 import com.sharder.TokenTypeCategory;
 
-import com.sharder.Nullable;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Value;
 
 @Getter
 public class ConditionExpression extends Expression {
+
+    private static final Set<TokenType> supportedOperators = Set.of(
+            TokenType.EQUAL, TokenType.NOT_EQUAL, TokenType.GREATER_THAN,
+            TokenType.GREATER_THAN_OR_EQUAL, TokenType.LESS_THAN, TokenType.LESS_THAN_OR_EQUAL);
 
     private final ConditionNodeTree tree;
 
@@ -33,7 +38,8 @@ public class ConditionExpression extends Expression {
             return container;
         }
 
-        private void preOrderTraversal(@Nullable ConditionExpression.ConditionNode node, List<ConditionNode> container) {
+        private void preOrderTraversal(@Nullable ConditionExpression.ConditionNode node,
+                                       List<ConditionNode> container) {
             if (node == null) {
                 return;
             }
@@ -62,7 +68,7 @@ public class ConditionExpression extends Expression {
         }
 
         public boolean isSupportedOperator() {
-            return token.type() == TokenType.EQUAL || token.type() == TokenType.NOT_EQUAL;
+            return supportedOperators.contains(token.type());
         }
     }
 
