@@ -10,6 +10,7 @@ import com.sharder.Statement;
 import com.sharder.Token;
 import com.sharder.TokenType;
 import com.sharder.TokenTypeCategory;
+import com.sharder.query.state.DeleteStatement;
 import com.sharder.query.state.InsertStatement;
 import com.sharder.query.state.InsertStatement.InsertStatementBuilder;
 import com.sharder.query.state.SelectStatement;
@@ -38,6 +39,7 @@ public class QueryParser extends Parser {
             case SELECT -> selectStatement();
             case INSERT -> insertStatement();
             case UPDATE -> updateStatement();
+            case DELETE -> deleteStatement();
             case WHERE -> whereStatement();
             default -> ExpressionStatement.builder().expression(expression()).build();
         };
@@ -164,6 +166,29 @@ public class QueryParser extends Parser {
             }
         }
         builder.columns(columns).values(values);
+
+        return builder.build();
+    }
+
+    /**
+     * e.g. DELETE FROM members
+     * Where statement will not be parsed here
+     */
+    private Statement deleteStatement() {
+        consumeAndAdvance(TokenType.DELETE, "Expect DELETE keyword");
+        consumeAndAdvance(TokenType.FROM, "Expect FROM keyword");
+
+        final DeleteStatement.DeleteStatementBuilder builder = DeleteStatement.builder();
+        final Token schemaOrTable = consumeAndAdvance(TokenType.IDENTIFIER, "Expect schema or table databaseName");
+        final String tableName = schemaOrTable.lexeme();
+
+        if (match(TokenType.DOT)) {
+            advance();
+            final Token table = consumeAndAdvance(TokenType.IDENTIFIER, "Expect table databaseName");
+            builder.schemaName(schemaOrTable.lexeme()).tableName(table.lexeme());
+        } else {
+            builder.tableName(tableName);
+        }
 
         return builder.build();
     }

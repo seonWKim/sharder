@@ -7,8 +7,8 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.sharder.shard.ShardDefinitionMod;
 import com.sharder.shard.DefaultSharderDatabase;
+import com.sharder.shard.ShardDefinitionMod;
 
 class SimpleQueryShardMatcherTest {
 
@@ -158,5 +158,55 @@ class SimpleQueryShardMatcherTest {
         final String query8 = "UPDATE person SET name = 'Alice' WHERE id = 0 AND id = 1";
         assertThat(matcher.match(query8, shard1)).isFalse();
         assertThat(matcher.match(query8, shard2)).isFalse();
+    }
+
+    @Test
+    void delete_no_shard_definition() {
+        final DefaultSharderDatabase shard1 = new DefaultSharderDatabase("shard1", Collections.emptyList());
+        final DefaultSharderDatabase shard2 = new DefaultSharderDatabase("shard2", Collections.emptyList());
+
+        final String query = "DELETE FROM person WHERE id = 1;";
+        assertThat(matcher.match(query, shard1)).isTrue();
+        assertThat(matcher.match(query, shard2)).isTrue();
+    }
+
+    @Test
+    void delete_with_shard_Definition() {
+        final DefaultSharderDatabase shard1 =
+                new DefaultSharderDatabase("shard1", List.of(new ShardDefinitionMod("person.id % 2 = 0")));
+        final DefaultSharderDatabase shard2 =
+                new DefaultSharderDatabase("shard2", List.of(new ShardDefinitionMod("person.id % 2 = 1")));
+
+        final String query1 = "DELETE FROM person;";
+        assertThat(matcher.match(query1, shard1)).isTrue();
+        assertThat(matcher.match(query1, shard2)).isTrue();
+
+        final String query2 = "DELETE FROM person WHERE id = 0;";
+        assertThat(matcher.match(query2, shard1)).isTrue();
+        assertThat(matcher.match(query2, shard2)).isFalse();
+
+        final String query3 = "DELETE FROM person WHERE id = 1;";
+        assertThat(matcher.match(query3, shard1)).isFalse();
+        assertThat(matcher.match(query3, shard2)).isTrue();
+
+        final String query4 = "DELETE FROM person WHERE id = 0 OR id = 1;";
+        assertThat(matcher.match(query4, shard1)).isTrue();
+        assertThat(matcher.match(query4, shard2)).isTrue();
+
+        final String query5 = "DELETE FROM person WHERE id = 0 AND id = 1";
+        assertThat(matcher.match(query5, shard1)).isFalse();
+        assertThat(matcher.match(query5, shard2)).isFalse();
+
+        final String query6 = "DELETE FROM person WHERE id = 0 AND name = 'Alice'";
+        assertThat(matcher.match(query6, shard1)).isTrue();
+        assertThat(matcher.match(query6, shard2)).isFalse();
+
+        final String query7 = "DELETE FROM person WHERE name = 'Alice'";
+        assertThat(matcher.match(query7, shard1)).isTrue();
+        assertThat(matcher.match(query7, shard2)).isTrue();
+
+        final String query8 = "DELETE FROM person WHERE id = 0 OR name = 'Alice'";
+        assertThat(matcher.match(query8, shard1)).isTrue();
+        assertThat(matcher.match(query8, shard2)).isTrue();
     }
 }

@@ -3,7 +3,6 @@ package com.sharder.query.state;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.sharder.Expression;
 import com.sharder.Nullable;
 import com.sharder.Statement;
 import com.sharder.StatementType;
@@ -39,7 +38,7 @@ public class InsertStatement extends Statement {
             tokensForConditionExpression.add(Token.EQUAL);
             tokensForConditionExpression.add(values.get(i));
 
-            if (i < size - 1)  {
+            if (i < size - 1) {
                 tokensForConditionExpression.add(Token.AND);
             }
         }

@@ -8,7 +8,10 @@ import lombok.Getter;
 
 @Builder
 @Getter
-class DeleteStatement extends Statement {
+public class DeleteStatement extends Statement {
+
+    private final String schemaName;
+    private final String tableName;
 
     @Override
     public <R> R accept(Visitor<R> visitor) {

@@ -14,7 +14,6 @@ import com.sharder.StatementType;
 import com.sharder.Token;
 import com.sharder.query.state.InsertStatement;
 import com.sharder.query.state.WhereStatement;
-import com.sharder.query.state.expr.ConditionExpression;
 
 public class SimpleQuery {
 
@@ -49,7 +48,7 @@ public class SimpleQuery {
                 break;
             case QUERY_DELETE:
                 this.queryType = DELETE;
-                this.conditionExpression = null;
+                this.conditionExpression = getConditionExpression(statements);
                 break;
             default:
                 throw new IllegalStateException("Unsupported query type: " + type);

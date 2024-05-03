@@ -43,6 +43,6 @@ public class SimpleQueryRestController {
 
     @Delete(DELETE_V1)
     public HttpResponse delete(SimpleQueryRequest request) {
-        return HttpResponse.of(200);
+        return HttpResponse.ofJson(HttpStatus.OK, simpleQueryService.delete(request.query()));
     }
 }

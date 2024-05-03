@@ -30,8 +30,9 @@ public class SimpleQueryServiceImpl implements SimpleQueryService {
         final List<Map<String, Object>> result = new ArrayList<>();
         for (var database : matchedDatabases) {
             log.info("Querying database: {}", database.databaseName());
-            result.addAll(database.jdbcTemplate().queryForList(query));
-
+            final List<Map<String, Object>> queryResult = database.jdbcTemplate().queryForList(query);
+            result.addAll(queryResult);
+            log.info("Queried database: {}", database.databaseName());
         }
 
         return result;
@@ -42,7 +43,8 @@ public class SimpleQueryServiceImpl implements SimpleQueryService {
         final List<SharderDatabaseImpl> matchedDatabases = findMatchedDatabases(query);
         for (var database : matchedDatabases) {
             log.info("Inserting into database: {}", database.databaseName());
-        database.jdbcTemplate().execute(query);
+            database.jdbcTemplate().execute(query);
+            log.info("Inserted into database: {}", database.databaseName());
         }
 
         return true;
@@ -62,7 +64,12 @@ public class SimpleQueryServiceImpl implements SimpleQueryService {
 
     @Override
     public boolean delete(String query) {
-        // TODO
+        final List<SharderDatabaseImpl> matchedDatabases = findMatchedDatabases(query);
+        for (var database : matchedDatabases) {
+            log.info("Deleting from database: {}", database.databaseName());
+            final int result = database.jdbcTemplate().update(query);
+            log.info("Deleted {} rows from database: {}", result, database.databaseName());
+        }
         return true;
     }
 

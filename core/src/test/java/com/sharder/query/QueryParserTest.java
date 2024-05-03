@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import com.sharder.ExpressionStatement;
 import com.sharder.Statement;
 import com.sharder.Token;
+import com.sharder.query.state.DeleteStatement;
 import com.sharder.query.state.InsertStatement;
 import com.sharder.query.state.SelectStatement;
 import com.sharder.query.state.UpdateStatement;
@@ -342,6 +343,56 @@ class QueryParserTest {
         assertThat(updateStatement.getColumns().get(1).lexeme()).isEqualTo("age");
         assertThat(updateStatement.getValues().get(1).type()).isEqualTo(NUMBER);
         assertThat(updateStatement.getValues().get(1).lexeme()).isEqualTo("20");
+
+        assertThat(statement.get(1).getClass()).isEqualTo(WhereStatement.class);
+        final WhereStatement whereStatement = (WhereStatement) statement.get(1);
+        assertThat(whereStatement.getExpression().getClass()).isEqualTo(ConditionExpression.class);
+        final ConditionExpression conditionExpression = (ConditionExpression) whereStatement.getExpression();
+        assertThat(conditionExpression.getTree().getTokens().size()).isEqualTo(3);
+        assertThat(conditionExpression.getTree().getTokens().get(0).type()).isEqualTo(IDENTIFIER);
+        assertThat(conditionExpression.getTree().getTokens().get(1).type()).isEqualTo(EQUAL);
+        assertThat(conditionExpression.getTree().getTokens().get(2).type()).isEqualTo(NUMBER);
+    }
+
+    @Test
+    void delete_statement_test_table_name_only() {
+        String deleteQuery = "DELETE FROM members;";
+        QueryScanner queryScanner = new QueryScanner(deleteQuery);
+        QueryParser queryParser = new QueryParser(queryScanner.scanTokens());
+        List<Statement> statement = queryParser.parse();
+
+        assertThat(statement.get(0).getClass()).isEqualTo(DeleteStatement.class);
+        final DeleteStatement deleteStatement = (DeleteStatement) statement.get(0);
+
+        assertThat(deleteStatement.getSchemaName()).isNull();
+        assertThat(deleteStatement.getTableName()).isEqualTo("members");
+    }
+
+    @Test
+    void delete_statement_test_with_schema_name() {
+        String deleteQuery = "DELETE FROM test.members;";
+        QueryScanner queryScanner = new QueryScanner(deleteQuery);
+        QueryParser queryParser = new QueryParser(queryScanner.scanTokens());
+        List<Statement> statement = queryParser.parse();
+
+        assertThat(statement.get(0).getClass()).isEqualTo(DeleteStatement.class);
+        final DeleteStatement deleteStatement = (DeleteStatement) statement.get(0);
+
+        assertThat(deleteStatement.getSchemaName()).isEqualTo("test");
+        assertThat(deleteStatement.getTableName()).isEqualTo("members");
+    }
+
+    @Test
+    void delete_statement_with_where_expression() {
+        String deleteQuery = "DELETE FROM members WHERE id = 10;";
+        QueryScanner queryScanner = new QueryScanner(deleteQuery);
+        QueryParser queryParser = new QueryParser(queryScanner.scanTokens());
+        List<Statement> statement = queryParser.parse();
+
+        assertThat(statement.get(0).getClass()).isEqualTo(DeleteStatement.class);
+        final DeleteStatement deleteStatement = (DeleteStatement) statement.get(0);
+        assertThat(deleteStatement.getSchemaName()).isNull();
+        assertThat(deleteStatement.getTableName()).isEqualTo("members");
 
         assertThat(statement.get(1).getClass()).isEqualTo(WhereStatement.class);
         final WhereStatement whereStatement = (WhereStatement) statement.get(1);
