@@ -1,44 +1,39 @@
 package com.sharder.shard;
 
 import java.util.List;
+import java.util.Set;
 
 import com.sharder.Expression;
+import com.sharder.Nullable;
 import com.sharder.Token;
 import com.sharder.TokenType;
 import com.sharder.query.state.expr.ConditionExpression;
 import com.sharder.query.state.expr.ConditionExpression.ConditionNode;
 
-import com.sharder.Nullable;
 import lombok.Getter;
 
 /**
  * table_name.column_name % 2 = 0
- *
- * TODO: should we add support for all tables e.g. column_name % 2 = 0 
  */
+// TODO: should we add support for all tables e.g. column_name % 2 = 0
 @Getter
 public class ShardDefinitionMod implements ShardDefinition {
     private final String definitionStr;
-    @Nullable
     private final Token table;
     private final Token column;
     private final Token divisor;
     private final Token result;
 
     // e.g. table_name.column_name % 2 = 0
-    private final List<TokenType> validator = List.of(TokenType.IDENTIFIER, TokenType.DOT, TokenType.IDENTIFIER,
-                                                      TokenType.MOD, TokenType.NUMBER, TokenType.EQUAL,
-                                                      TokenType.NUMBER);
+    private final List<Set<TokenType>> validator = List.of(
+            Set.of(TokenType.IDENTIFIER), Set.of(TokenType.DOT), Set.of(TokenType.IDENTIFIER),
+            Set.of(TokenType.MOD), Set.of(TokenType.NUMBER), Set.of(TokenType.EQUAL),
+            Set.of(TokenType.NUMBER), Set.of(TokenType.EOF));
 
     public ShardDefinitionMod(String definitionStr) {
         this.definitionStr = definitionStr;
 
         List<Token> tokens = new ShardDefinitionScanner(definitionStr).scanTokens();
-        final int size = tokens.size();
-        if (tokens.get(size - 1).type() == TokenType.EOF) {
-            tokens.remove(size - 1);
-        }
-
         if (validate(tokens, validator)) {
             this.table = tokens.get(0);
             this.column = tokens.get(2);
@@ -56,7 +51,7 @@ public class ShardDefinitionMod implements ShardDefinition {
 
     @Override
     public String tableName() {
-        return table != null ? table.lexeme() : null;
+        return table.lexeme();
     }
 
     @Override

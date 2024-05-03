@@ -1,6 +1,7 @@
 package com.sharder.shard;
 
 import java.util.List;
+import java.util.Set;
 
 import com.sharder.Expression;
 import com.sharder.Nullable;
@@ -20,13 +21,13 @@ public interface ShardDefinition {
      */
     boolean match(Expression conditionExpression);
 
-    default boolean validate(List<Token> tokens, List<TokenType> matcher) {
+    default boolean validate(List<Token> tokens, List<Set<TokenType>> matcher) {
         if (tokens.size() != matcher.size()) {
             return false;
         }
 
         for (int i = 0; i < tokens.size(); i++) {
-            if (tokens.get(i).type() != matcher.get(i)) {
+            if (!matcher.get(i).contains(tokens.get(i).type())) {
                 return false;
             }
         }
