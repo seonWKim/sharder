@@ -1,0 +1,67 @@
+spring:
+  main:
+    web-application-type: none
+  profiles:
+    active: local
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: local
+  main:
+    web-application-type: none
+
+armeria:
+  ports:
+    - port: 8080
+      protocols:
+        - http
+
+management:
+  server:
+    port: 8081
+  endpoints:
+    web:
+      exposure:
+        include:
+          - health
+          - beans
+      path-mapping:
+        health: healthcheck
+
+sharder:
+  datasource:
+    db1:
+      config:
+        jdbc-url: jdbc:mysql://localhost:5001/test
+        username: root
+        password: example
+      shard:
+        - type: mod
+          definition: user.id % 3 = 0
+        - type: mod
+          definition: order.id % 3 = 0
+
+    db2:
+      config:
+        jdbc-url: jdbc:mysql://localhost:5002/test
+        username: root
+        password: example
+      shard:
+        - type: mod
+          definition: user.id % 3 = 1
+        - type: mod
+          definition: order.id % 3 = 1
+
+    db3:
+      config:
+        jdbc-url: jdbc:mysql://localhost:5003/test
+        username: root
+        password: example
+      shard:
+        - type: mod
+          definition: user.id % 3 = 2
+        - type: mod
+          definition: order.id % 3 = 2

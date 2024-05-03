@@ -1,0 +1,14 @@
+package com.sharder;
+
+import java.util.List;
+import java.util.Map;
+
+public interface SimpleQueryService {
+    List<Map<String, Object>> select(String query);
+
+    boolean insert(String query);
+
+    boolean update(String query);
+
+    boolean delete(String query);
+}
