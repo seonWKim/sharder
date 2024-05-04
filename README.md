@@ -1,14 +1,19 @@
-# Sharder 
+# Sharder
+Sharder is a library to easily manage application level database sharding.
+<div align="center">
+  <img src="./icon.png" width="150" height="150">
+</div>
 
-## Description 
-Application to manage database sharding. You send queries to the sharder and it will route the query to the correct shard.
+## Features
 
-## Features 
-- Sharder can be configured to route queries to the correct shard based on the query. Supported queries are: 
-  - SINGLE TABLE SELECT(No JOINS) 
-  - INSERT 
-  - UPDATE 
-  - DELETE
-- Supported Database: MySQL
-
-# sharder
+- Sharder can be configured to route queries to the correct shard based on the query.
+- Supported queries
+    - SELECT(No JOINS)
+    - INSERT
+    - UPDATE
+    - DELETE
+- Supported sharding method
+    - Mod
+    - Range
+    - Hash(TBD)
+- Supported Database: MySQL, PostgreSQL(TBD)

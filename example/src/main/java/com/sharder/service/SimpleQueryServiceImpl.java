@@ -1,4 +1,4 @@
-package com.sharder.api;
+package com.sharder.service;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,7 +6,6 @@ import java.util.Map;
 
 import org.springframework.stereotype.Component;
 
-import com.sharder.SimpleQueryService;
 import com.sharder.SimpleQueryShardMatcher;
 import com.sharder.config.record.SharderDatabaseImpl;
 import com.sharder.config.record.SharderDatabases;

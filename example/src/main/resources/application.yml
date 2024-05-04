@@ -53,9 +53,7 @@ sharder:
         - type: mod
           definition: members.id % 3 = 2
         - type: range
-          definition: orders.id >= 10
-        - type: range
-          definition: orders.id < 20
+          definition: orders.id >= 10 AND orders.id < 20
 
     db3:
       config:

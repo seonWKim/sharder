@@ -7,7 +7,7 @@ import static com.sharder.api.ApiPath.UPDATE_V1;
 
 import org.springframework.stereotype.Component;
 
-import com.sharder.SimpleQueryService;
+import com.sharder.service.SimpleQueryService;
 
 import com.linecorp.armeria.common.HttpResponse;
 import com.linecorp.armeria.common.HttpStatus;

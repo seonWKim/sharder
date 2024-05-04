@@ -1,9 +1,4 @@
 ## How to run
-Run the following command to start the application. Replace the phase with the desired phase(use `local` as default)
-```bash
-$ ../gradlew runJar -Pprofile=<phase> 
-```
-
 Run the following command to start database
 - MySql
   ```bash                      
@@ -20,3 +15,14 @@ Run the following command to start database
   ```bash
   $ docker-compose -f scripts/postgresql/docker-compose.yml up -d
   ```
+
+Run the following command to start the application. Replace the phase with the desired phase(use `local` as default)
+```bash
+$ ../gradlew runJar -Pprofile=<phase> 
+```
+                       
+Go to [docs](http://localhost:8080/docs) to access the API documentation
+![img.png](images/dosc-eample.png)
+
+View which database has been queries 
+![img.png](images/queries-database-log.png)
