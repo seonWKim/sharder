@@ -11,6 +11,10 @@ import com.sharder.query.state.expr.ConditionExpression;
 
 import lombok.Getter;
 
+/**
+ * Represents an insert statement. Note that {@code schemaName} is optional.<br>
+ * e.g. INSERT INTO schema.table_name (column1, column2) VALUES (value1, value2);
+ */
 @Getter
 public class InsertStatement extends FirstStatement {
     public static InsertStatementBuilder builder() {return new InsertStatementBuilder();}
@@ -43,12 +47,6 @@ public class InsertStatement extends FirstStatement {
             }
         }
         this.conditionExpression = new ConditionExpression(tokensForConditionExpression);
-    }
-
-    @Override
-    public <R> R accept(Visitor<R> visitor) {
-
-        return visitor.visitStatement(this, StatementType.QUERY_INSERT);
     }
 
     @Override

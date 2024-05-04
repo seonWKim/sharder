@@ -3,7 +3,7 @@ package com.sharder.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.sharder.api.SimpleQueryRestController;
+import com.sharder.api.QueryRestController;
 
 import com.linecorp.armeria.server.docs.DocService;
 import com.linecorp.armeria.server.logging.AccessLogWriter;
@@ -15,7 +15,7 @@ import lombok.RequiredArgsConstructor;
 @Configuration
 @RequiredArgsConstructor
 public class ArmeriaConfiguration {
-    private final SimpleQueryRestController simpleQueryRestController;
+    private final QueryRestController queryRestController;
 
     @Bean
     public ArmeriaServerConfigurator armeriaServerConfigurator() {
@@ -24,7 +24,7 @@ public class ArmeriaConfiguration {
             builder.decorator(LoggingService.newDecorator());
             builder.accessLogWriter(AccessLogWriter.combined(), false);
 
-            builder.annotatedService(simpleQueryRestController);
+            builder.annotatedService(queryRestController);
             // builder.service(THttpService.of(...));
             // builder.service(GrpcService.builder()...build());
         };

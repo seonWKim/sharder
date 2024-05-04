@@ -1,15 +1,8 @@
 package com.sharder;
 
 /**
- * Represents a statement in a query, shard definition(TBD).
+ * Represents a statement in a query.
  */
-public abstract class Statement {
-
-    public interface Visitor<R> {
-        R visitStatement(Statement statement, StatementType type);
-    }
-
-    public abstract <R> R accept(Visitor<R> visitor);
-
+public abstract class Statement{
     public abstract StatementType getStatementType();
 }

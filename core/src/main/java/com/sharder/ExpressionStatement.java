@@ -1,21 +1,38 @@
 package com.sharder;
 
-import lombok.Builder;
 import lombok.Getter;
 
-@Builder
 @Getter
 public class ExpressionStatement extends Statement {
+    public static ExpressionStatementBuilder builder() {return new ExpressionStatementBuilder();}
+
     final Expression expression;
 
-    final
-    @Override
-    public <R> R accept(Visitor<R> visitor) {
-        return visitor.visitStatement(this, StatementType.EXPR);
+    ExpressionStatement(Expression expression) {
+        this.expression = expression;
     }
 
     @Override
     public StatementType getStatementType() {
         return StatementType.EXPR;
+    }
+
+    public static class ExpressionStatementBuilder {
+        private Expression expression;
+
+        ExpressionStatementBuilder() {}
+
+        public ExpressionStatementBuilder expression(Expression expression) {
+            this.expression = expression;
+            return this;
+        }
+
+        public ExpressionStatement build() {
+            return new ExpressionStatement(this.expression);
+        }
+
+        public String toString() {
+            return "ExpressionStatement.ExpressionStatementBuilder(expression=" + this.expression + ")";
+        }
     }
 }

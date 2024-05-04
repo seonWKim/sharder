@@ -1,5 +1,8 @@
 package com.sharder;
 
+/**
+ * Represents a statement type in a query.
+ */
 public enum StatementType {
     QUERY_SELECT,
     QUERY_INSERT,
@@ -8,6 +11,4 @@ public enum StatementType {
     QUERY_WHERE,
 
     EXPR,
-
-    // TODO: add shard related types
 }

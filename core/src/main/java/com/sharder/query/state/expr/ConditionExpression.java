@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Set;
 
 import com.sharder.Expression;
-import com.sharder.ExpressionType;
 import com.sharder.Nullable;
 import com.sharder.Token;
 import com.sharder.TokenType;
@@ -17,6 +16,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Value;
 
+/**
+ * Represents a condition expression in the query.
+ */
 @Getter
 public class ConditionExpression extends Expression {
 
@@ -25,52 +27,6 @@ public class ConditionExpression extends Expression {
             TokenType.GREATER_THAN_OR_EQUAL, TokenType.LESS_THAN, TokenType.LESS_THAN_OR_EQUAL);
 
     private final ConditionNodeTree tree;
-
-    @Builder
-    @Value
-    public static class ConditionNodeTree {
-        ConditionNode root;
-        List<Token> tokens;
-
-        public List<ConditionNode> preOrderTraversal() {
-            List<ConditionNode> container = new LinkedList<>();
-            preOrderTraversal(root, container);
-            return container;
-        }
-
-        private void preOrderTraversal(@Nullable ConditionExpression.ConditionNode node,
-                                       List<ConditionNode> container) {
-            if (node == null) {
-                return;
-            }
-
-            preOrderTraversal(node.left, container);
-            container.add(node);
-            preOrderTraversal(node.right, container);
-        }
-    }
-
-    @Builder
-    @Value
-    public static class ConditionNode {
-        @Builder.Default
-        ConditionNode left = null;
-        Token token;
-        @Builder.Default
-        ConditionNode right = null;
-
-        public static ConditionNode of(Token token) {
-            return ConditionNode.builder().token(token).build();
-        }
-
-        public boolean isLogicalOperator() {
-            return token.type() == TokenType.AND || token.type() == TokenType.OR;
-        }
-
-        public boolean isSupportedOperator() {
-            return supportedOperators.contains(token.type());
-        }
-    }
 
     public ConditionExpression(List<Token> tokens) {
         this.tree = buildTree(tokens, 0, tokens.size());
@@ -155,13 +111,55 @@ public class ConditionExpression extends Expression {
         return token.type() == TokenType.AND || token.type() == TokenType.OR;
     }
 
-    @Override
-    protected <R> R accept(Visitor<R> visitor) {
-        return null;
+    /**
+     * Represents a condition node tree.
+     */
+    @Builder
+    @Value
+    public static class ConditionNodeTree {
+        ConditionNode root;
+        List<Token> tokens;
+
+        public List<ConditionNode> preOrderTraversal() {
+            List<ConditionNode> container = new LinkedList<>();
+            preOrderTraversal(root, container);
+            return container;
+        }
+
+        private void preOrderTraversal(@Nullable ConditionExpression.ConditionNode node,
+                                       List<ConditionNode> container) {
+            if (node == null) {
+                return;
+            }
+
+            preOrderTraversal(node.left, container);
+            container.add(node);
+            preOrderTraversal(node.right, container);
+        }
     }
 
-    @Override
-    public ExpressionType getExpressionType() {
-        return ExpressionType.CONDITION;
+    /**
+     * Represents a condition node in the tree.
+     */
+    @Builder
+    @Value
+    public static class ConditionNode {
+        @Builder.Default
+        ConditionNode left = null;
+        Token token;
+        @Builder.Default
+        ConditionNode right = null;
+
+        public static ConditionNode of(Token token) {
+            return ConditionNode.builder().token(token).build();
+        }
+
+        public boolean isLogicalOperator() {
+            return token.type() == TokenType.AND || token.type() == TokenType.OR;
+        }
+
+        public boolean isSupportedOperator() {
+            return supportedOperators.contains(token.type());
+        }
     }
 }

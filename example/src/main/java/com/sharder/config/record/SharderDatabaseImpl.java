@@ -13,15 +13,12 @@ import com.zaxxer.hikari.HikariDataSource;
 public class SharderDatabaseImpl implements SharderDatabase {
     private final String databaseName;
     private final List<ShardDefinition> shardDefinitions;
-    private final HikariDataSource dataSource;
     private final JdbcTemplate jdbcTemplate;
     private final Map<String, List<ShardDefinition>> shardDefinitionsByTableName;
 
-    public SharderDatabaseImpl(String databaseName, List<ShardDefinition> shardDefinitions,
-                               HikariDataSource dataSource, JdbcTemplate jdbcTemplate) {
+    public SharderDatabaseImpl(String databaseName, List<ShardDefinition> shardDefinitions, JdbcTemplate jdbcTemplate) {
         this.databaseName = databaseName;
         this.shardDefinitions = shardDefinitions;
-        this.dataSource = dataSource;
         this.jdbcTemplate = jdbcTemplate;
         this.shardDefinitionsByTableName = shardDefinitions.stream().collect(
                 Collectors.groupingBy(ShardDefinition::tableName));

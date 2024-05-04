@@ -12,12 +12,10 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import lombok.RequiredArgsConstructor;
-
 /**
- * Base class for scanning the query string and tokenizing it.
+ * Base class for scanning the query string and tokenizing it.<br>
+ * Note that this class is not thread-safe.
  */
-@RequiredArgsConstructor
 public abstract class Scanner {
     private final Logger logger = LoggerFactory.getLogger(Scanner.class);
 
@@ -27,6 +25,10 @@ public abstract class Scanner {
     protected int start = 0;
     protected int current = 0;
     protected int line = 1;
+
+    public Scanner(String input) {
+        this.input = input;
+    }
 
     public List<Token> scanTokens() {
         while (!isAtEnd()) {

@@ -14,12 +14,12 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
-public class SimpleQueryServiceImpl implements SimpleQueryService {
+public class QueryServiceImpl implements QueryService {
 
     private final List<SharderDatabaseImpl> databases;
     private final SimpleQueryShardMatcher shardMatcher = new SimpleQueryShardMatcher();
 
-    public SimpleQueryServiceImpl(SharderDatabases databases) {
+    public QueryServiceImpl(SharderDatabases databases) {
         this.databases = new ArrayList<>(databases.configs().values());
     }
 

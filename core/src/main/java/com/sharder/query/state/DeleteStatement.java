@@ -1,23 +1,24 @@
 package com.sharder.query.state;
 
 import com.sharder.FirstStatement;
-import com.sharder.Statement;
 import com.sharder.StatementType;
 
-import lombok.Builder;
 import lombok.Getter;
 
-@Builder
+/**
+ * Represents a DELETE statement in SQL. Note that {@code schemaName} is optional.<br>
+ * e.g. DELETE FROM schema.table_name;
+ */
 @Getter
 public class DeleteStatement extends FirstStatement {
+    public static DeleteStatementBuilder builder() {return new DeleteStatementBuilder();}
 
     private final String schemaName;
     private final String tableName;
 
-    @Override
-    public <R> R accept(Visitor<R> visitor) {
-
-        return visitor.visitStatement(this, StatementType.QUERY_DELETE);
+    DeleteStatement(String schemaName, String tableName) {
+        this.schemaName = schemaName;
+        this.tableName = tableName;
     }
 
     @Override
@@ -28,5 +29,31 @@ public class DeleteStatement extends FirstStatement {
     @Override
     public String tableName() {
         return tableName;
+    }
+
+    public static class DeleteStatementBuilder {
+        private String schemaName;
+        private String tableName;
+
+        DeleteStatementBuilder() {}
+
+        public DeleteStatementBuilder schemaName(String schemaName) {
+            this.schemaName = schemaName;
+            return this;
+        }
+
+        public DeleteStatementBuilder tableName(String tableName) {
+            this.tableName = tableName;
+            return this;
+        }
+
+        public DeleteStatement build() {
+            return new DeleteStatement(this.schemaName, this.tableName);
+        }
+
+        public String toString() {
+            return "DeleteStatement.DeleteStatementBuilder(schemaName=" + this.schemaName + ", tableName="
+                   + this.tableName + ")";
+        }
     }
 }

@@ -8,12 +8,25 @@ import com.sharder.Nullable;
 import com.sharder.Token;
 import com.sharder.TokenType;
 
+/**
+ * Represents a shard definition.
+ */
 public interface ShardDefinition {
+
+    /**
+     * The type of the shard definition.
+     */
     ShardDefinitionType type();
 
+    /**
+     * The name of the table that this shard definition applies to.
+     */
     @Nullable
     String tableName();
 
+    /**
+     * The name of the column that this shard definition applies to.
+     */
     String columnName();
 
     /**

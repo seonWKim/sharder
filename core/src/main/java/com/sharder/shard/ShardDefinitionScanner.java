@@ -26,8 +26,8 @@ import com.sharder.TokenType;
  * This is a non thread-safe class. You have to create a new {@link ShardDefinitionScanner} instance for each shard definition.
  * Multiline shard definitions are also supported.<p>
  * Examples<p>
- * 1) id % 2 == 0
- * 2) id > 0 AND id < 10
+ * 1) members.id % 2 == 0
+ * 2) members.id > 0 AND members.id < 10
  */
 public class ShardDefinitionScanner extends Scanner {
 

@@ -16,9 +16,9 @@ import com.sharder.query.state.expr.ConditionExpression.ConditionNode;
 import lombok.Getter;
 
 /**
+ * Represents a shard definition using range operation.
  * type1:
  * - table_name.column_name (< | <= | > | >=) value
- * TODO: should match run using anyMatch or allMatch?
  * type2: Note that we don't support OR here. You can allow OR operations by defining multiple {@link ShardDefinitionRange}s.
  * - table_name.column_name (< | <= | > | >=) value AND table_name.column_name (< | <= | > | >=) value
  */
@@ -100,7 +100,7 @@ public class ShardDefinitionRange implements ShardDefinition {
         }
 
         throw new IllegalArgumentException(
-                "Unsupported expression type: " + conditionExpression.getExpressionType());
+                "Unsupported expression type: " + conditionExpression.getClass());
     }
 
     private boolean match(@Nullable ConditionNode condition) {
@@ -131,7 +131,7 @@ public class ShardDefinitionRange implements ShardDefinition {
 
             final ColumnRangeConditions conditions = new ColumnRangeConditions(
                     new ColumnRangeCondition(column, condition.getToken(), valueNode.getToken()));
-            return ShardDefinitionRangeIntersectChecker.intersects(conditions, this.conditions);
+            return RangeIntersectChecker.intersects(conditions, this.conditions);
         }
 
         if (condition.isLogicalOperator()) {

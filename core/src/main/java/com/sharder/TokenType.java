@@ -62,6 +62,7 @@ public enum TokenType {
     // EOF
     EOF(TokenTypeCategory.ETC, List.of(DefinitionType.QUERY, DefinitionType.SHARD));
 
+    @Getter
     private final TokenTypeCategory category;
     private final int mask;
 

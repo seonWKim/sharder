@@ -11,7 +11,7 @@ import com.sharder.TokenType;
 import com.sharder.shard.ShardDefinitionRange.ColumnRangeCondition;
 import com.sharder.shard.ShardDefinitionRange.ColumnRangeConditions;
 
-class ShardDefinitionRangeIntersectCheckerTest {
+class RangeIntersectCheckerTest {
 
     final Token column = new Token(TokenType.IDENTIFIER, "id", "id", Token.NOT_FROM_USER_INPUT);
     final Token greaterThanOp = new Token(TokenType.GREATER_THAN, ">", ">", Token.NOT_FROM_USER_INPUT);
@@ -32,22 +32,22 @@ class ShardDefinitionRangeIntersectCheckerTest {
                 new ColumnRangeCondition(column, greaterThanOp, numberToken("10")));
         conditions2 = new ColumnRangeConditions(
                 new ColumnRangeCondition(column, lessThanOrEqualOp, numberToken("20")));
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(conditions1, conditions2)).isTrue();
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(conditions2, conditions1)).isTrue();
+        assertThat(RangeIntersectChecker.intersects(conditions1, conditions2)).isTrue();
+        assertThat(RangeIntersectChecker.intersects(conditions2, conditions1)).isTrue();
 
         conditions1 = new ColumnRangeConditions(
                 new ColumnRangeCondition(column, greaterThanOrEqualOp, numberToken("10")));
         conditions2 = new ColumnRangeConditions(
                 new ColumnRangeCondition(column, lessThanOrEqualOp, numberToken("10")));
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(conditions1, conditions2)).isTrue();
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(conditions2, conditions1)).isTrue();
+        assertThat(RangeIntersectChecker.intersects(conditions1, conditions2)).isTrue();
+        assertThat(RangeIntersectChecker.intersects(conditions2, conditions1)).isTrue();
 
         conditions1 = new ColumnRangeConditions(
                 new ColumnRangeCondition(column, greaterThanOp, numberToken("10")));
         conditions2 = new ColumnRangeConditions(
                 new ColumnRangeCondition(column, lessThanOrEqualOp, numberToken("10")));
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(conditions1, conditions2)).isFalse();
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(conditions2, conditions1)).isFalse();
+        assertThat(RangeIntersectChecker.intersects(conditions1, conditions2)).isFalse();
+        assertThat(RangeIntersectChecker.intersects(conditions2, conditions1)).isFalse();
     }
 
     @Test
@@ -61,8 +61,8 @@ class ShardDefinitionRangeIntersectCheckerTest {
         conditions2 = new ColumnRangeConditions(
                 new ColumnRangeCondition(column, lessThanOrEqualOp, numberToken("30")),
                 new ColumnRangeCondition(column, greaterThanOrEqualOp, numberToken("15")));
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(conditions1, conditions2)).isTrue();
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(conditions2, conditions1)).isTrue();
+        assertThat(RangeIntersectChecker.intersects(conditions1, conditions2)).isTrue();
+        assertThat(RangeIntersectChecker.intersects(conditions2, conditions1)).isTrue();
 
         conditions1 = new ColumnRangeConditions(
                 new ColumnRangeCondition(column, greaterThanOp, numberToken("10")),
@@ -70,8 +70,8 @@ class ShardDefinitionRangeIntersectCheckerTest {
         conditions2 = new ColumnRangeConditions(
                 new ColumnRangeCondition(column, lessThanOrEqualOp, numberToken("30")),
                 new ColumnRangeCondition(column, greaterThanOrEqualOp, numberToken("20")));
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(conditions1, conditions2)).isTrue();
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(conditions2, conditions1)).isTrue();
+        assertThat(RangeIntersectChecker.intersects(conditions1, conditions2)).isTrue();
+        assertThat(RangeIntersectChecker.intersects(conditions2, conditions1)).isTrue();
 
         conditions1 = new ColumnRangeConditions(
                 new ColumnRangeCondition(column, greaterThanOp, numberToken("10")),
@@ -79,8 +79,8 @@ class ShardDefinitionRangeIntersectCheckerTest {
         conditions2 = new ColumnRangeConditions(
                 new ColumnRangeCondition(column, lessThanOrEqualOp, numberToken("30")),
                 new ColumnRangeCondition(column, greaterThanOp, numberToken("20")));
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(conditions1, conditions2)).isFalse();
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(conditions2, conditions1)).isFalse();
+        assertThat(RangeIntersectChecker.intersects(conditions1, conditions2)).isFalse();
+        assertThat(RangeIntersectChecker.intersects(conditions2, conditions1)).isFalse();
 
         conditions1 = new ColumnRangeConditions(
                 new ColumnRangeCondition(column, greaterThanOp, numberToken("10")),
@@ -88,8 +88,8 @@ class ShardDefinitionRangeIntersectCheckerTest {
         conditions2 = new ColumnRangeConditions(
                 new ColumnRangeCondition(column, lessThanOrEqualOp, numberToken("40")),
                 new ColumnRangeCondition(column, greaterThanOp, numberToken("30")));
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(conditions1, conditions2)).isFalse();
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(conditions2, conditions1)).isFalse();
+        assertThat(RangeIntersectChecker.intersects(conditions1, conditions2)).isFalse();
+        assertThat(RangeIntersectChecker.intersects(conditions2, conditions1)).isFalse();
     }
 
     @Test
@@ -103,23 +103,23 @@ class ShardDefinitionRangeIntersectCheckerTest {
 
         conditions2 = new ColumnRangeConditions(
                 new ColumnRangeCondition(column, equalOp, numberToken("5")));
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(conditions, conditions2)).isFalse();
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(conditions2, conditions)).isFalse();
+        assertThat(RangeIntersectChecker.intersects(conditions, conditions2)).isFalse();
+        assertThat(RangeIntersectChecker.intersects(conditions2, conditions)).isFalse();
 
         conditions2 = new ColumnRangeConditions(
                 new ColumnRangeCondition(column, equalOp, numberToken("10")));
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(conditions, conditions2)).isTrue();
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(conditions2, conditions)).isTrue();
+        assertThat(RangeIntersectChecker.intersects(conditions, conditions2)).isTrue();
+        assertThat(RangeIntersectChecker.intersects(conditions2, conditions)).isTrue();
 
         conditions2 = new ColumnRangeConditions(
                 new ColumnRangeCondition(column, equalOp, numberToken("20")));
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(conditions, conditions2)).isFalse();
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(conditions2, conditions)).isFalse();
+        assertThat(RangeIntersectChecker.intersects(conditions, conditions2)).isFalse();
+        assertThat(RangeIntersectChecker.intersects(conditions2, conditions)).isFalse();
 
         conditions2 = new ColumnRangeConditions(
                 new ColumnRangeCondition(column, equalOp, numberToken("30")));
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(conditions, conditions2)).isFalse();
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(conditions2, conditions)).isFalse();
+        assertThat(RangeIntersectChecker.intersects(conditions, conditions2)).isFalse();
+        assertThat(RangeIntersectChecker.intersects(conditions2, conditions)).isFalse();
     }
 
     // TODO: add support for not_equal condition

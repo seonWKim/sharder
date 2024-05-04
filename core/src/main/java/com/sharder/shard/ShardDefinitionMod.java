@@ -14,9 +14,9 @@ import com.sharder.query.state.expr.ConditionExpression.ConditionNode;
 import lombok.Getter;
 
 /**
- * table_name.column_name % 2 = 0
+ * Represents a shard definition using modulo operation.
+ * e.g. table_name.column_name % 2 = 0
  */
-// TODO: should we add support for all tables e.g. column_name % 2 = 0
 @Getter
 public class ShardDefinitionMod implements ShardDefinition {
     private final String definitionStr;
@@ -66,7 +66,7 @@ public class ShardDefinitionMod implements ShardDefinition {
             return match(expression.getTree().getRoot());
         }
 
-        throw new IllegalArgumentException("Unsupported expression type: " + conditionExpression.getExpressionType());
+        throw new IllegalArgumentException("Unsupported expression type: " + conditionExpression.getClass());
     }
 
     /**

@@ -6,7 +6,8 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 
 /**
- * Base class for parsing tokens into statements.
+ * Base class for parsing tokens into statements. <br>
+ * Note that this class is not thread-safe.
  */
 @RequiredArgsConstructor
 public abstract class Parser {

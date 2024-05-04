@@ -5,10 +5,10 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class DefaultSharderDatabase implements SharderDatabase {
-    private String databaseName;
-    private List<ShardDefinition> shardDefinitions;
+    private final String databaseName;
+    private final List<ShardDefinition> shardDefinitions;
 
-    private Map<String, List<ShardDefinition>> shardDefinitionsByTableName;
+    private final Map<String, List<ShardDefinition>> shardDefinitionsByTableName;
 
     public DefaultSharderDatabase(String databaseName, List<ShardDefinition> shardDefinitions) {
         this.databaseName = databaseName;

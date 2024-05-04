@@ -12,14 +12,11 @@ import com.sharder.TokenType;
 import com.sharder.TokenTypeCategory;
 import com.sharder.query.state.DeleteStatement;
 import com.sharder.query.state.InsertStatement;
-import com.sharder.query.state.InsertStatement.InsertStatementBuilder;
 import com.sharder.query.state.SelectStatement;
 import com.sharder.query.state.UpdateStatement;
 import com.sharder.query.state.WhereStatement;
 import com.sharder.query.state.expr.ConditionExpression;
 import com.sharder.query.state.expr.SemicolonExpression;
-
-import lombok.val;
 
 /**
  * Parse query language. Supports SELECT, INSERT, UPDATE, DELETE statements including WHERE clause.<p>
@@ -27,7 +24,6 @@ import lombok.val;
  * operation.<p>
  */
 public class QueryParser extends Parser {
-
     public QueryParser(List<Token> tokens) {
         super(tokens);
     }
@@ -46,7 +42,7 @@ public class QueryParser extends Parser {
     }
 
     /**
-     * e.g. SELECT * FROM members WHERE databaseName = 'Alice';
+     * e.g. SELECT * FROM members;
      */
     private Statement selectStatement() {
         consumeAndAdvance(TokenType.SELECT, "Expect SELECT keyword");
@@ -135,7 +131,6 @@ public class QueryParser extends Parser {
 
     /**
      * e.g. UPDATE members SET databaseName = 'Alice', age = 20
-     * Where statement will not be parsed here
      */
     private Statement updateStatement() {
         consumeAndAdvance(TokenType.UPDATE, "Expect UPDATE keyword");
@@ -172,7 +167,6 @@ public class QueryParser extends Parser {
 
     /**
      * e.g. DELETE FROM members
-     * Where statement will not be parsed here
      */
     private Statement deleteStatement() {
         consumeAndAdvance(TokenType.DELETE, "Expect DELETE keyword");

@@ -3,9 +3,18 @@ package com.sharder;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.sharder.query.SimpleQuery;
 import com.sharder.shard.SharderDatabase;
 
+/**
+ * Simple query shard matcher.<br>
+ *
+ * When a single table has multiple shard definitions, it will work as an OR operation. For example, when the shard definitions are as follows: <br>
+ * <pre>
+ * 1) members.id > 10
+ * 2) members.id < 20
+ * </pre>
+ * Above will match databases that have either {@code member.id > 10} OR {@code member.id < 20}. <br>
+ */
 public class SimpleQueryShardMatcher implements QueryShardMatcher {
     @Override
     public boolean match(String query, SharderDatabase database) {
@@ -41,9 +50,6 @@ public class SimpleQueryShardMatcher implements QueryShardMatcher {
             return true;
         }
 
-        // TODO:
-        //  WHERE: id < 10 OR id >= 20
-        //  SHARD: id >= 10 AND id < 20
         return database.shardDefinitionsByTableName().get(simpleQuery.tableName())
                        .stream().anyMatch(it -> it.match(simpleQuery.conditionExpression()));
     }

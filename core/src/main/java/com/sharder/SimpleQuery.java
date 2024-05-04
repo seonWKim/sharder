@@ -1,25 +1,17 @@
-package com.sharder.query;
-
-import static com.sharder.QueryType.DELETE;
-import static com.sharder.QueryType.INSERT;
-import static com.sharder.QueryType.SELECT;
+package com.sharder;
 
 import java.util.List;
 
-import com.sharder.Expression;
-import com.sharder.FirstStatement;
-import com.sharder.Nullable;
-import com.sharder.QueryType;
-import com.sharder.Statement;
-import com.sharder.StatementType;
-import com.sharder.Token;
+import com.sharder.query.QueryParser;
+import com.sharder.query.QueryScanner;
 import com.sharder.query.state.InsertStatement;
 import com.sharder.query.state.WhereStatement;
 
+/**
+ * Represents a single query. Supports SELECT, INSERT, UPDATE, DELETE queries.
+ */
 public class SimpleQuery {
 
-    private final String queryString;
-    private final QueryType queryType;
     private final FirstStatement firstStatement;
     @Nullable
     private final Expression conditionExpression;
@@ -29,8 +21,6 @@ public class SimpleQuery {
     }
 
     private SimpleQuery(String queryString) {
-        this.queryString = queryString;
-
         List<Token> tokens = new QueryScanner(queryString).scanTokens();
         List<Statement> statements = new QueryParser(tokens).parse();
         if (statements.isEmpty()) {
@@ -40,21 +30,11 @@ public class SimpleQuery {
         firstStatement = (FirstStatement) statements.get(0);
         final StatementType type = firstStatement.getStatementType();
         switch (type) {
-            case QUERY_SELECT:
-                this.queryType = SELECT;
+            case QUERY_SELECT, QUERY_UPDATE, QUERY_DELETE:
                 this.conditionExpression = getConditionExpression(statements);
                 break;
             case QUERY_INSERT:
-                this.queryType = INSERT;
                 this.conditionExpression = ((InsertStatement) statements.get(0)).getConditionExpression();
-                break;
-            case QUERY_UPDATE:
-                this.queryType = QueryType.UPDATE;
-                this.conditionExpression = getConditionExpression(statements);
-                break;
-            case QUERY_DELETE:
-                this.queryType = DELETE;
-                this.conditionExpression = getConditionExpression(statements);
                 break;
             default:
                 throw new IllegalStateException("Unsupported query type: " + type);

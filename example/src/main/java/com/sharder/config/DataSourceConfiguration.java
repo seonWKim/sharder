@@ -52,7 +52,7 @@ public class DataSourceConfiguration {
                         throw new IllegalArgumentException("Invalid shard definition type: " + cfg.type());
                     }).collect(Collectors.toList());
 
-            dataSources.put(name, new SharderDatabaseImpl(name, shardDefinitions, dataSource, jdbcTemplate));
+            dataSources.put(name, new SharderDatabaseImpl(name, shardDefinitions, jdbcTemplate));
         }
         return new SharderDatabases(dataSources);
     }
