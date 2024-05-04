@@ -16,11 +16,13 @@ import com.sharder.query.state.expr.ConditionExpression.ConditionNode;
 import lombok.Getter;
 
 /**
- * Represents a shard definition using range operation.
- * type1:
- * - table_name.column_name (< | <= | > | >=) value
- * type2: Note that we don't support OR here. You can allow OR operations by defining multiple {@link ShardDefinitionRange}s.
- * - table_name.column_name (< | <= | > | >=) value AND table_name.column_name (< | <= | > | >=) value
+ * Represents a shard definition using range operation.<br><br>
+ * type1:<br>
+ * - {@code table_name.column_name (< | <= | > | >=) value}<br>
+ * - e.g. {@code users.id > 10}<br><br>
+ * type2: Note that we don't support OR here. You can allow OR operations by defining multiple {@link ShardDefinitionRange}s.<br>
+ * - {@code table_name.column_name (< | <= | > | >=) value AND table_name.column_name (< | <= | > | >=) value}<br>
+ * - e.g. {@code users.id > 10 AND users.id <= 20}<br>
  */
 @Getter
 public class ShardDefinitionRange implements ShardDefinition {
@@ -28,13 +30,14 @@ public class ShardDefinitionRange implements ShardDefinition {
     private final Token table;
     private final Token column;
     private final ColumnRangeConditions conditions;
-    // e.g. table_name.column_name < 10
+
     private static final Set<TokenType> supportedOperators =
             Set.of(TokenType.GREATER_THAN, TokenType.GREATER_THAN_OR_EQUAL,
                    TokenType.LESS_THAN, TokenType.LESS_THAN_OR_EQUAL);
     private static final List<Set<TokenType>> shardDefinitionValidator =
             List.of(Set.of(TokenType.IDENTIFIER), Set.of(TokenType.DOT), Set.of(TokenType.IDENTIFIER),
                     supportedOperators, Set.of(TokenType.NUMBER, TokenType.STRING));
+
     private static final List<Set<TokenType>> type1Validator = new ArrayList<>();
     private static final List<Set<TokenType>> type2Validator = new ArrayList<>();
 

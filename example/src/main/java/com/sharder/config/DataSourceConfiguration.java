@@ -45,8 +45,10 @@ public class DataSourceConfiguration {
                         switch (cfg.type()) {
                             case MOD:
                                 return new ShardDefinitionMod(cfg.definition());
-                            case HASH, RANGE:
+                            case RANGE:
                                 return new ShardDefinitionRange(cfg.definition());
+                            case HASH:
+                                throw new UnsupportedOperationException("Hash sharding is not supported yet.");
                         }
 
                         throw new IllegalArgumentException("Invalid shard definition type: " + cfg.type());
