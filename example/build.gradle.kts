@@ -28,7 +28,7 @@ dependencies {
 
 tasks.register<JavaExec>("runJar") {
     dependsOn("jar")
-    mainClass.set("com.seonWKim.sharder.SharderApplicationExample")
+    mainClass.set("io.github.seonWKim.SharderApplicationExample")
     classpath = sourceSets["main"].runtimeClasspath
     val profile = project.findProperty("profile") as String? ?: "local"
     args = listOf("--spring.profiles.active=$profile")
