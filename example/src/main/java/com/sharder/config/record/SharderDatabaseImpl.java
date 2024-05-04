@@ -41,4 +41,8 @@ public class SharderDatabaseImpl implements SharderDatabase {
     public Map<String, List<ShardDefinition>> shardDefinitionsByTableName() {
         return shardDefinitionsByTableName;
     }
+
+    public JdbcTemplate jdbcTemplate() {
+        return jdbcTemplate;
+    }
 }

@@ -41,8 +41,8 @@ sharder:
       shard:
         - type: mod
           definition: members.id % 3 = 1
-        - type: mod
-          definition: order.id % 3 = 1
+        - type: range
+          definition: orders.id < 10
 
     db2:
       config:
@@ -52,8 +52,10 @@ sharder:
       shard:
         - type: mod
           definition: members.id % 3 = 2
-        - type: mod
-          definition: order.id % 3 = 2
+        - type: range
+          definition: orders.id >= 10
+        - type: range
+          definition: orders.id < 20
 
     db3:
       config:
@@ -63,5 +65,5 @@ sharder:
       shard:
         - type: mod
           definition: members.id % 3 = 0
-        - type: mod
-          definition: order.id % 3 = 0
+        - type: range
+          definition: orders.id >= 20

@@ -168,6 +168,11 @@ class SimpleQueryShardMatcherTest {
         assertThat(matcher.match(query5, shard1)).isTrue();
         assertThat(matcher.match(query5, shard2)).isTrue();
         assertThat(matcher.match(query5, shard3)).isFalse();
+
+        final String query6 = "SELECT * FROM person WHERE id < 10 OR id >= 20";
+        assertThat(matcher.match(query6, shard1)).isTrue();
+        assertThat(matcher.match(query6, shard2)).isFalse();
+        assertThat(matcher.match(query6, shard3)).isTrue();
     }
 
     @Test

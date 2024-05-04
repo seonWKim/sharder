@@ -1,6 +1,7 @@
 package com.sharder.shard;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import com.sharder.Expression;
@@ -82,7 +83,7 @@ public class ShardDefinitionMod implements ShardDefinition {
             if (identifier == null) {
                 throw new IllegalArgumentException("Left node(identifier) should not be null");
             }
-            if (!identifier.getToken().lexeme().equals(column.lexeme())) {
+            if (!Objects.equals(identifier.getToken().lexeme(), (column.lexeme()))) {
                 return true;
             }
 
@@ -119,7 +120,7 @@ public class ShardDefinitionMod implements ShardDefinition {
             throw new IllegalArgumentException("Right node should be a number");
         }
 
-        if (identifier.getToken().lexeme().equals(column.lexeme())) {
+        if (Objects.equals(identifier.getToken().lexeme(), column.lexeme())) {
             return Integer.parseInt(value.getToken().lexeme()) % Integer.parseInt(divisor.lexeme())
                    == Integer.parseInt(result.lexeme());
         }
@@ -136,7 +137,7 @@ public class ShardDefinitionMod implements ShardDefinition {
             throw new IllegalArgumentException("Right node should be a number");
         }
 
-        if (identifier.getToken().lexeme().equals(column.lexeme())) {
+        if (Objects.equals(identifier.getToken().lexeme(), column.lexeme())) {
             return Integer.parseInt(value.getToken().lexeme()) % Integer.parseInt(divisor.lexeme())
                    != Integer.parseInt(result.lexeme());
         }

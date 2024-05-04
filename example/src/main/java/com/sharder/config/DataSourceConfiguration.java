@@ -15,6 +15,7 @@ import com.sharder.config.record.SharderDatabaseImpl;
 import com.sharder.config.record.SharderDatabases;
 import com.sharder.shard.ShardDefinition;
 import com.sharder.shard.ShardDefinitionMod;
+import com.sharder.shard.ShardDefinitionRange;
 import com.zaxxer.hikari.HikariDataSource;
 
 import lombok.RequiredArgsConstructor;
@@ -45,7 +46,7 @@ public class DataSourceConfiguration {
                             case MOD:
                                 return new ShardDefinitionMod(cfg.definition());
                             case HASH, RANGE:
-                                break;
+                                return new ShardDefinitionRange(cfg.definition());
                         }
 
                         throw new IllegalArgumentException("Invalid shard definition type: " + cfg.type());

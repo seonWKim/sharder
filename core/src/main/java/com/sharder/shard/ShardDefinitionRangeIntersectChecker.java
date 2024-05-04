@@ -14,6 +14,7 @@ public class ShardDefinitionRangeIntersectChecker {
             Set.of(TokenType.GREATER_THAN, TokenType.GREATER_THAN_OR_EQUAL, TokenType.LESS_THAN,
                    TokenType.LESS_THAN_OR_EQUAL, TokenType.EQUAL, TokenType.NOT_EQUAL);
 
+
     public static boolean intersects(Token operator1, Token value1, Token operator2, Token value2) {
         if (!conditionSupportedOperators.contains(operator1.type())) {
             throw new IllegalArgumentException("Unsupported operator1: " + operator1);
