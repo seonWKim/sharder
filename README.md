@@ -1,8 +1,13 @@
 # Sharder
 Sharder is a library to easily manage application level database sharding.
+
+<br>
+
 <div align="center">
-  <img src="./icon.png" width="150" height="150">
+  <img src="./icon.png" width="250" height="250">
 </div>
+ 
+<br> 
 
 ## Features
 
