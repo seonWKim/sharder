@@ -6,9 +6,6 @@ plugins {
 }
 
 allprojects {
-    group = "com.sharder"
-    version = "0.0.1-SNAPSHOT"
-
     repositories {
         mavenCentral()
     }
@@ -16,10 +13,6 @@ allprojects {
     tasks.withType<Test> {
         useJUnitPlatform()
     }
-}
-
-java {
-    sourceCompatibility = JavaVersion.VERSION_17
 }
 
 subprojects {
@@ -38,7 +31,6 @@ subprojects {
         implementation("com.linecorp.armeria:armeria-logback")
         implementation("org.springframework.data:spring-data-jdbc:3.2.5")
         implementation("com.zaxxer:HikariCP:4.0.3")
-
         implementation("mysql:mysql-connector-java:8.0.33")
 
         annotationProcessor("org.springframework.boot:spring-boot-configuration-processor:3.2.2")
