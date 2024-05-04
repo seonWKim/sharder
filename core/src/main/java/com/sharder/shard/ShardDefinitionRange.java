@@ -108,66 +108,87 @@ public class ShardDefinitionRange implements ShardDefinition {
             return true;
         }
 
-        return true;
-//        final TokenType type = condition.getToken().type();
-//        if (condition.isSupportedOperator()) {
-//            final ConditionNode identifier = condition.getLeft();
-//            if (identifier == null) {
-//                throw new IllegalArgumentException("Left node(identifier) should not be null");
-//            }
-//
-//            // identifiers are not equal, so we can skip the check
-//            if (!Objects.equals(identifier.getToken().lexeme(), column.lexeme())) {
-//                return true;
-//            }
-//
-//            final ConditionNode valueNode = condition.getRight();
-//            if (valueNode == null) {
-//                throw new IllegalArgumentException("Right node(value) should not be null");
-//            } else if (valueNode.getToken().type() != valueNode.getToken().type()) {
-//                throw new IllegalArgumentException(
-//                        "Value types mismatch: {} != {}" + valueNode.getToken().type() + valueNode.getToken()
-//                                                                                                  .type());
-//            }
-//
-//            final ColumnRangeCondition conditionRange =
-//                    new ColumnRangeCondition(column, condition.getToken(), valueNode.getToken());
-//            final ColumnRangeCondition oppositeConditionRange = oppositeOf(conditionRange);
-//            return ShardDefinitionRangeIntersectChecker.intersects();
-//        }
-//
-//        if (condition.isLogicalOperator()) {
-//            return switch (type) {
-//                case AND -> match(condition.getLeft()) && match(condition.getRight());
-//                case OR -> match(condition.getLeft()) || match(condition.getRight());
-//                default -> throw new IllegalArgumentException("Unsupported logical operator: " + type);
-//            };
-//        }
-//
-//        throw new IllegalArgumentException("Should not reach here: " + type);
+        final TokenType type = condition.getToken().type();
+        if (condition.isSupportedOperator()) {
+            final ConditionNode identifier = condition.getLeft();
+            if (identifier == null) {
+                throw new IllegalArgumentException("Left node(identifier) should not be null");
+            }
+
+            // identifiers are not equal, so we can skip the check
+            if (!Objects.equals(identifier.getToken().lexeme(), column.lexeme())) {
+                return true;
+            }
+
+            final ConditionNode valueNode = condition.getRight();
+            if (valueNode == null) {
+                throw new IllegalArgumentException("Right node(value) should not be null");
+            } else if (valueNode.getToken().type() != valueNode.getToken().type()) {
+                throw new IllegalArgumentException(
+                        "Value types mismatch: {} != {}" + valueNode.getToken().type() + valueNode.getToken()
+                                                                                                  .type());
+            }
+
+            final ColumnRangeConditions conditions = new ColumnRangeConditions(
+                    new ColumnRangeCondition(column, condition.getToken(), valueNode.getToken()));
+            return ShardDefinitionRangeIntersectChecker.intersects(conditions, this.conditions);
+        }
+
+        if (condition.isLogicalOperator()) {
+            return switch (type) {
+                case AND -> match(condition.getLeft()) && match(condition.getRight());
+                case OR -> match(condition.getLeft()) || match(condition.getRight());
+                default -> throw new IllegalArgumentException("Unsupported logical operator: " + type);
+            };
+        }
+
+        throw new IllegalArgumentException("Should not reach here: " + type);
     }
 
     @Getter
-    protected static class ColumnRangeConditions {
+    public static class ColumnRangeConditions {
         private final ColumnRangeCondition left;
         private final ColumnRangeCondition right;
+
+        @Nullable
+        private final ColumnRangeCondition notEqualValue;
 
         private static final Set<TokenType> lessThenOperators = Set.of(TokenType.LESS_THAN,
                                                                        TokenType.LESS_THAN_OR_EQUAL);
         private static final Set<TokenType> greaterThenOperators = Set.of(TokenType.GREATER_THAN,
                                                                           TokenType.GREATER_THAN_OR_EQUAL);
 
+        private static final Token greaterThanEqualOp = new Token(TokenType.GREATER_THAN_OR_EQUAL, ">=",
+                                                                  ">=", Token.NOT_FROM_USER_INPUT);
+        private static final Token lessThanEqualOp = new Token(TokenType.LESS_THAN_OR_EQUAL, "<=",
+                                                               "<=", Token.NOT_FROM_USER_INPUT);
+
         public ColumnRangeConditions(ColumnRangeCondition cond) {
-            if (cond.operator.type() == TokenType.LESS_THAN ||
-                cond.operator.type() == TokenType.LESS_THAN_OR_EQUAL) {
-                this.right = cond;
-                this.left = ColumnRangeCondition.greaterThanOrEqualMinusInfinite(cond.column);
-            } else if (cond.operator.type() == TokenType.GREATER_THAN ||
-                       cond.operator.type() == TokenType.GREATER_THAN_OR_EQUAL) {
-                this.left = cond;
-                this.right = ColumnRangeCondition.lessThanOrEqualPlusInfinite(cond.column);
-            } else {
-                throw new IllegalArgumentException("Invalid operator: " + cond.operator.lexeme());
+            switch (cond.operator.type()) {
+                case LESS_THAN:
+                case LESS_THAN_OR_EQUAL:
+                    this.right = cond;
+                    this.left = ColumnRangeCondition.greaterThanOrEqualMinusInfinite(cond.column);
+                    this.notEqualValue = null;
+                    break;
+                case GREATER_THAN:
+                case GREATER_THAN_OR_EQUAL:
+                    this.left = cond;
+                    this.right = ColumnRangeCondition.lessThanOrEqualPlusInfinite(cond.column);
+                    this.notEqualValue = null;
+                    break;
+                case EQUAL:
+                    this.left = new ColumnRangeCondition(cond.column, greaterThanEqualOp, cond.value);
+                    this.right = new ColumnRangeCondition(cond.column, lessThanEqualOp, cond.value);
+                    this.notEqualValue = null;
+                    break;
+                case NOT_EQUAL:
+                    this.left = ColumnRangeCondition.greaterThanOrEqualMinusInfinite(cond.column);
+                    this.right = ColumnRangeCondition.lessThanOrEqualPlusInfinite(cond.column);
+                    this.notEqualValue = cond;
+                    break;
+                default:
+                    throw new IllegalArgumentException("Invalid operator: " + cond.operator.lexeme());
             }
         }
 
@@ -184,6 +205,7 @@ public class ShardDefinitionRange implements ShardDefinition {
                 this.left = right;
                 this.right = left;
             }
+            this.notEqualValue = null;
         }
 
         private boolean isOppositeOperator(TokenType type1, TokenType type2) {
@@ -193,7 +215,7 @@ public class ShardDefinitionRange implements ShardDefinition {
     }
 
     @Getter
-    protected static class ColumnRangeCondition {
+    public static class ColumnRangeCondition {
         private final Token column;
         private final Token operator;
         private final Token value;
@@ -221,6 +243,15 @@ public class ShardDefinitionRange implements ShardDefinition {
             this.column = column;
             this.operator = operator;
             this.value = value;
+        }
+
+        public boolean includeValue() {
+            return operator.type() == TokenType.GREATER_THAN_OR_EQUAL ||
+                   operator.type() == TokenType.LESS_THAN_OR_EQUAL;
+        }
+
+        public String value() {
+            return value.lexeme();
         }
     }
 }

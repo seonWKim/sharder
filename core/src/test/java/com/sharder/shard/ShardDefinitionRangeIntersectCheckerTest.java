@@ -2,382 +2,153 @@ package com.sharder.shard;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
+import java.math.BigDecimal;
+
 import org.junit.jupiter.api.Test;
 
 import com.sharder.Token;
 import com.sharder.TokenType;
+import com.sharder.shard.ShardDefinitionRange.ColumnRangeCondition;
+import com.sharder.shard.ShardDefinitionRange.ColumnRangeConditions;
 
 class ShardDefinitionRangeIntersectCheckerTest {
 
+    final Token column = new Token(TokenType.IDENTIFIER, "id", "id", Token.NOT_FROM_USER_INPUT);
+    final Token greaterThanOp = new Token(TokenType.GREATER_THAN, ">", ">", Token.NOT_FROM_USER_INPUT);
+    final Token greaterThanOrEqualOp = new Token(TokenType.GREATER_THAN_OR_EQUAL, ">=", ">=",
+                                                 Token.NOT_FROM_USER_INPUT);
+    final Token lessThanOp = new Token(TokenType.LESS_THAN, "<", "<", Token.NOT_FROM_USER_INPUT);
+    final Token lessThanOrEqualOp = new Token(TokenType.LESS_THAN_OR_EQUAL, "<=", "<=",
+                                              Token.NOT_FROM_USER_INPUT);
+
+    final Token equalOp = new Token(TokenType.EQUAL, "=", "=", Token.NOT_FROM_USER_INPUT);
+
     @Test
-    void greater_than_same_value() {
-        Token operator1 = new Token(TokenType.GREATER_THAN, ">", ">", Token.NOT_FROM_USER_INPUT);
-        Token value1 = new Token(TokenType.NUMBER, "10", 10, Token.NOT_FROM_USER_INPUT);
+    void single_condition_intersection_test() {
+        ColumnRangeConditions conditions1;
+        ColumnRangeConditions conditions2;
 
-        Token operator2 = new Token(TokenType.GREATER_THAN, ">", ">", Token.NOT_FROM_USER_INPUT);
-        Token value2 = new Token(TokenType.NUMBER, "10", "10", Token.NOT_FROM_USER_INPUT);
+        conditions1 = new ColumnRangeConditions(
+                new ColumnRangeCondition(column, greaterThanOp, numberToken("10")));
+        conditions2 = new ColumnRangeConditions(
+                new ColumnRangeCondition(column, lessThanOrEqualOp, numberToken("20")));
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(conditions1, conditions2)).isTrue();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(conditions2, conditions1)).isTrue();
 
-        Token operator3 = new Token(TokenType.GREATER_THAN_OR_EQUAL, ">", 10, Token.NOT_FROM_USER_INPUT);
-        Token value3 = new Token(TokenType.NUMBER, "10", 10, Token.NOT_FROM_USER_INPUT);
+        conditions1 = new ColumnRangeConditions(
+                new ColumnRangeCondition(column, greaterThanOrEqualOp, numberToken("10")));
+        conditions2 = new ColumnRangeConditions(
+                new ColumnRangeCondition(column, lessThanOrEqualOp, numberToken("10")));
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(conditions1, conditions2)).isTrue();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(conditions2, conditions1)).isTrue();
 
-        Token operator4 = new Token(TokenType.LESS_THAN, "<", "<", Token.NOT_FROM_USER_INPUT);
-        Token value4 = new Token(TokenType.NUMBER, "10", 10, Token.NOT_FROM_USER_INPUT);
-
-        Token operator5 = new Token(TokenType.LESS_THAN_OR_EQUAL, "<=", "<=", Token.NOT_FROM_USER_INPUT);
-        Token value5 = new Token(TokenType.NUMBER, "10", 10, Token.NOT_FROM_USER_INPUT);
-
-        Token operator6 = new Token(TokenType.EQUAL, "=", "=", Token.NOT_FROM_USER_INPUT);
-        Token value6 = new Token(TokenType.NUMBER, "10", 10, Token.NOT_FROM_USER_INPUT);
-
-        Token operator7 = new Token(TokenType.NOT_EQUAL, "!=", "!=", Token.NOT_FROM_USER_INPUT);
-        Token value7 = new Token(TokenType.NUMBER, "10", 10, Token.NOT_FROM_USER_INPUT);
-
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator2, value2)).isTrue();
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator3, value3)).isTrue();
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator4, value4)).isFalse();
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator5, value5)).isFalse();
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator6, value6)).isFalse();
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator7, value7)).isTrue();
+        conditions1 = new ColumnRangeConditions(
+                new ColumnRangeCondition(column, greaterThanOp, numberToken("10")));
+        conditions2 = new ColumnRangeConditions(
+                new ColumnRangeCondition(column, lessThanOrEqualOp, numberToken("10")));
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(conditions1, conditions2)).isFalse();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(conditions2, conditions1)).isFalse();
     }
 
     @Test
-    void greater_than_bigger_value() {
-        Token operator1 = new Token(TokenType.GREATER_THAN, ">", ">", Token.NOT_FROM_USER_INPUT);
-        Token value1 = new Token(TokenType.NUMBER, "10", 10, Token.NOT_FROM_USER_INPUT);
+    void multiple_condition_intersection_test() {
+        ColumnRangeConditions conditions1;
+        ColumnRangeConditions conditions2;
 
-        Token operator2 = new Token(TokenType.GREATER_THAN, ">", ">", Token.NOT_FROM_USER_INPUT);
-        Token value2 = new Token(TokenType.NUMBER, "20", "20", Token.NOT_FROM_USER_INPUT);
+        conditions1 = new ColumnRangeConditions(
+                new ColumnRangeCondition(column, greaterThanOp, numberToken("10")),
+                new ColumnRangeCondition(column, lessThanOrEqualOp, numberToken("20")));
+        conditions2 = new ColumnRangeConditions(
+                new ColumnRangeCondition(column, lessThanOrEqualOp, numberToken("30")),
+                new ColumnRangeCondition(column, greaterThanOrEqualOp, numberToken("15")));
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(conditions1, conditions2)).isTrue();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(conditions2, conditions1)).isTrue();
 
-        Token operator3 = new Token(TokenType.GREATER_THAN_OR_EQUAL, ">", 10, Token.NOT_FROM_USER_INPUT);
-        Token value3 = new Token(TokenType.NUMBER, "20", 20, Token.NOT_FROM_USER_INPUT);
+        conditions1 = new ColumnRangeConditions(
+                new ColumnRangeCondition(column, greaterThanOp, numberToken("10")),
+                new ColumnRangeCondition(column, lessThanOrEqualOp, numberToken("20")));
+        conditions2 = new ColumnRangeConditions(
+                new ColumnRangeCondition(column, lessThanOrEqualOp, numberToken("30")),
+                new ColumnRangeCondition(column, greaterThanOrEqualOp, numberToken("20")));
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(conditions1, conditions2)).isTrue();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(conditions2, conditions1)).isTrue();
 
-        Token operator4 = new Token(TokenType.LESS_THAN, "<", "<", Token.NOT_FROM_USER_INPUT);
-        Token value4 = new Token(TokenType.NUMBER, "20", 20, Token.NOT_FROM_USER_INPUT);
+        conditions1 = new ColumnRangeConditions(
+                new ColumnRangeCondition(column, greaterThanOp, numberToken("10")),
+                new ColumnRangeCondition(column, lessThanOrEqualOp, numberToken("20")));
+        conditions2 = new ColumnRangeConditions(
+                new ColumnRangeCondition(column, lessThanOrEqualOp, numberToken("30")),
+                new ColumnRangeCondition(column, greaterThanOp, numberToken("20")));
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(conditions1, conditions2)).isFalse();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(conditions2, conditions1)).isFalse();
 
-        Token operator5 = new Token(TokenType.LESS_THAN_OR_EQUAL, "<=", "<=", Token.NOT_FROM_USER_INPUT);
-        Token value5 = new Token(TokenType.NUMBER, "20", 20, Token.NOT_FROM_USER_INPUT);
-
-        Token operator6 = new Token(TokenType.EQUAL, "=", "=", Token.NOT_FROM_USER_INPUT);
-        Token value6 = new Token(TokenType.NUMBER, "20", 20, Token.NOT_FROM_USER_INPUT);
-
-        Token operator7 = new Token(TokenType.NOT_EQUAL, "!=", "!=", Token.NOT_FROM_USER_INPUT);
-        Token value7 = new Token(TokenType.NUMBER, "20", 20, Token.NOT_FROM_USER_INPUT);
-
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator2, value2)).isTrue();
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator3, value3)).isTrue();
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator4, value4)).isTrue();
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator5, value5)).isTrue();
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator6, value6)).isTrue();
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator7, value7)).isTrue();
+        conditions1 = new ColumnRangeConditions(
+                new ColumnRangeCondition(column, greaterThanOp, numberToken("10")),
+                new ColumnRangeCondition(column, lessThanOrEqualOp, numberToken("20")));
+        conditions2 = new ColumnRangeConditions(
+                new ColumnRangeCondition(column, lessThanOrEqualOp, numberToken("40")),
+                new ColumnRangeCondition(column, greaterThanOp, numberToken("30")));
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(conditions1, conditions2)).isFalse();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(conditions2, conditions1)).isFalse();
     }
 
     @Test
-    void greater_than_smaller_value() {
-        Token operator1 = new Token(TokenType.GREATER_THAN, ">", ">", Token.NOT_FROM_USER_INPUT);
-        Token value1 = new Token(TokenType.NUMBER, "10", 10, Token.NOT_FROM_USER_INPUT);
+    void equal_condition_intersection_test() {
+        ColumnRangeConditions conditions;
+        ColumnRangeConditions conditions2;
 
-        Token operator2 = new Token(TokenType.GREATER_THAN, ">", ">", Token.NOT_FROM_USER_INPUT);
-        Token value2 = new Token(TokenType.NUMBER, "5", "5", Token.NOT_FROM_USER_INPUT);
+        conditions = new ColumnRangeConditions(
+                new ColumnRangeCondition(column, greaterThanOrEqualOp, numberToken("10")),
+                new ColumnRangeCondition(column, lessThanOp, numberToken("20")));
 
-        Token operator3 = new Token(TokenType.GREATER_THAN_OR_EQUAL, ">", 10, Token.NOT_FROM_USER_INPUT);
-        Token value3 = new Token(TokenType.NUMBER, "5", 5, Token.NOT_FROM_USER_INPUT);
+        conditions2 = new ColumnRangeConditions(
+                new ColumnRangeCondition(column, equalOp, numberToken("5")));
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(conditions, conditions2)).isFalse();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(conditions2, conditions)).isFalse();
 
-        Token operator4 = new Token(TokenType.LESS_THAN, "<", "<", Token.NOT_FROM_USER_INPUT);
-        Token value4 = new Token(TokenType.NUMBER, "5", 5, Token.NOT_FROM_USER_INPUT);
+        conditions2 = new ColumnRangeConditions(
+                new ColumnRangeCondition(column, equalOp, numberToken("10")));
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(conditions, conditions2)).isTrue();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(conditions2, conditions)).isTrue();
 
-        Token operator5 = new Token(TokenType.LESS_THAN_OR_EQUAL, "<=", "<=", Token.NOT_FROM_USER_INPUT);
-        Token value5 = new Token(TokenType.NUMBER, "5", 5, Token.NOT_FROM_USER_INPUT);
+        conditions2 = new ColumnRangeConditions(
+                new ColumnRangeCondition(column, equalOp, numberToken("20")));
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(conditions, conditions2)).isFalse();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(conditions2, conditions)).isFalse();
 
-        Token operator6 = new Token(TokenType.EQUAL, "=", "=", Token.NOT_FROM_USER_INPUT);
-        Token value6 = new Token(TokenType.NUMBER, "5", 5, Token.NOT_FROM_USER_INPUT);
-
-        Token operator7 = new Token(TokenType.NOT_EQUAL, "!=", "!=", Token.NOT_FROM_USER_INPUT);
-        Token value7 = new Token(TokenType.NUMBER, "5", 5, Token.NOT_FROM_USER_INPUT);
-
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator2, value2)).isTrue();
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator3, value3)).isTrue();
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator4, value4)).isFalse();
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator5, value5)).isFalse();
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator6, value6)).isFalse();
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator7, value7)).isTrue();
+        conditions2 = new ColumnRangeConditions(
+                new ColumnRangeCondition(column, equalOp, numberToken("30")));
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(conditions, conditions2)).isFalse();
+        assertThat(ShardDefinitionRangeIntersectChecker.intersects(conditions2, conditions)).isFalse();
     }
 
-    @Test
-    void greater_than_or_equal_same_value() {
-        Token operator1 = new Token(TokenType.GREATER_THAN_OR_EQUAL, ">=", ">=", Token.NOT_FROM_USER_INPUT);
-        Token value1 = new Token(TokenType.NUMBER, "10", 10, Token.NOT_FROM_USER_INPUT);
-
-        Token operator2 = new Token(TokenType.GREATER_THAN_OR_EQUAL, ">=", ">=", Token.NOT_FROM_USER_INPUT);
-        Token value2 = new Token(TokenType.NUMBER, "10", "10", Token.NOT_FROM_USER_INPUT);
-
-        Token operator3 = new Token(TokenType.GREATER_THAN, ">", 10, Token.NOT_FROM_USER_INPUT);
-        Token value3 = new Token(TokenType.NUMBER, "10", 10, Token.NOT_FROM_USER_INPUT);
-
-        Token operator4 = new Token(TokenType.LESS_THAN, "<", "<", Token.NOT_FROM_USER_INPUT);
-        Token value4 = new Token(TokenType.NUMBER, "10", 10, Token.NOT_FROM_USER_INPUT);
-
-        Token operator5 = new Token(TokenType.LESS_THAN_OR_EQUAL, "<=", "<=", Token.NOT_FROM_USER_INPUT);
-        Token value5 = new Token(TokenType.NUMBER, "10", 10, Token.NOT_FROM_USER_INPUT);
-
-        Token operator6 = new Token(TokenType.EQUAL, "=", "=", Token.NOT_FROM_USER_INPUT);
-        Token value6 = new Token(TokenType.NUMBER, "10", 10, Token.NOT_FROM_USER_INPUT);
-
-        Token operator7 = new Token(TokenType.NOT_EQUAL, "!=", "!=", Token.NOT_FROM_USER_INPUT);
-        Token value7 = new Token(TokenType.NUMBER, "10", 10, Token.NOT_FROM_USER_INPUT);
-
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator2, value2)).isTrue();
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator3, value3)).isTrue();
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator4, value4)).isFalse();
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator5, value5)).isTrue();
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator6, value6)).isTrue();
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator7, value7)).isTrue();
-    }
-
-    @Test
-    void greater_than_or_equal_bigger_value() {
-        Token operator1 = new Token(TokenType.GREATER_THAN_OR_EQUAL, ">=", ">=", Token.NOT_FROM_USER_INPUT);
-        Token value1 = new Token(TokenType.NUMBER, "10", 10, Token.NOT_FROM_USER_INPUT);
-
-        Token operator2 = new Token(TokenType.GREATER_THAN_OR_EQUAL, ">=", ">=", Token.NOT_FROM_USER_INPUT);
-        Token value2 = new Token(TokenType.NUMBER, "20", "20", Token.NOT_FROM_USER_INPUT);
-
-        Token operator3 = new Token(TokenType.GREATER_THAN, ">", 10, Token.NOT_FROM_USER_INPUT);
-        Token value3 = new Token(TokenType.NUMBER, "20", 20, Token.NOT_FROM_USER_INPUT);
-
-        Token operator4 = new Token(TokenType.LESS_THAN, "<", "<", Token.NOT_FROM_USER_INPUT);
-        Token value4 = new Token(TokenType.NUMBER, "20", 20, Token.NOT_FROM_USER_INPUT);
-
-        Token operator5 = new Token(TokenType.LESS_THAN_OR_EQUAL, "<=", "<=", Token.NOT_FROM_USER_INPUT);
-        Token value5 = new Token(TokenType.NUMBER, "20", 20, Token.NOT_FROM_USER_INPUT);
-
-        Token operator6 = new Token(TokenType.EQUAL, "=", "=", Token.NOT_FROM_USER_INPUT);
-        Token value6 = new Token(TokenType.NUMBER, "20", 20, Token.NOT_FROM_USER_INPUT);
-
-        Token operator7 = new Token(TokenType.NOT_EQUAL, "!=", "!=", Token.NOT_FROM_USER_INPUT);
-        Token value7 = new Token(TokenType.NUMBER, "20", 20, Token.NOT_FROM_USER_INPUT);
-
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator2, value2)).isTrue();
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator3, value3)).isTrue();
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator4, value4)).isTrue();
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator5, value5)).isTrue();
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator6, value6)).isTrue();
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator7, value7)).isTrue();
-    }
-
-    @Test
-    void greater_than_or_equal_smaller_value() {
-        Token operator1 = new Token(TokenType.GREATER_THAN_OR_EQUAL, ">=", ">=", Token.NOT_FROM_USER_INPUT);
-        Token value1 = new Token(TokenType.NUMBER, "10", 10, Token.NOT_FROM_USER_INPUT);
-
-        Token operator2 = new Token(TokenType.GREATER_THAN_OR_EQUAL, ">=", ">=", Token.NOT_FROM_USER_INPUT);
-        Token value2 = new Token(TokenType.NUMBER, "5", "5", Token.NOT_FROM_USER_INPUT);
-
-        Token operator3 = new Token(TokenType.GREATER_THAN, ">", 10, Token.NOT_FROM_USER_INPUT);
-        Token value3 = new Token(TokenType.NUMBER, "5", 5, Token.NOT_FROM_USER_INPUT);
-
-        Token operator4 = new Token(TokenType.LESS_THAN, "<", "<", Token.NOT_FROM_USER_INPUT);
-        Token value4 = new Token(TokenType.NUMBER, "5", 5, Token.NOT_FROM_USER_INPUT);
-
-        Token operator5 = new Token(TokenType.LESS_THAN_OR_EQUAL, "<=", "<=", Token.NOT_FROM_USER_INPUT);
-        Token value5 = new Token(TokenType.NUMBER, "5", 5, Token.NOT_FROM_USER_INPUT);
-
-        Token operator6 = new Token(TokenType.EQUAL, "=", "=", Token.NOT_FROM_USER_INPUT);
-        Token value6 = new Token(TokenType.NUMBER, "5", 5, Token.NOT_FROM_USER_INPUT);
-
-        Token operator7 = new Token(TokenType.NOT_EQUAL, "!=", "!=", Token.NOT_FROM_USER_INPUT);
-        Token value7 = new Token(TokenType.NUMBER, "5", 5, Token.NOT_FROM_USER_INPUT);
-
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator2, value2)).isTrue();
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator3, value3)).isTrue();
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator4, value4)).isFalse();
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator5, value5)).isFalse();
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator6, value6)).isFalse();
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator7, value7)).isTrue();
-    }
-
-    @Test
-    void less_than_same_value() {
-        Token operator1 = new Token(TokenType.LESS_THAN, "<", "<", Token.NOT_FROM_USER_INPUT);
-        Token value1 = new Token(TokenType.NUMBER, "10", 10, Token.NOT_FROM_USER_INPUT);
-
-        Token operator2 = new Token(TokenType.LESS_THAN, "<", "<", Token.NOT_FROM_USER_INPUT);
-        Token value2 = new Token(TokenType.NUMBER, "10", "10", Token.NOT_FROM_USER_INPUT);
-
-        Token operator3 = new Token(TokenType.LESS_THAN_OR_EQUAL, "<=", 10, Token.NOT_FROM_USER_INPUT);
-        Token value3 = new Token(TokenType.NUMBER, "10", 10, Token.NOT_FROM_USER_INPUT);
-
-        Token operator4 = new Token(TokenType.GREATER_THAN, ">", ">", Token.NOT_FROM_USER_INPUT);
-        Token value4 = new Token(TokenType.NUMBER, "10", 10, Token.NOT_FROM_USER_INPUT);
-
-        Token operator5 = new Token(TokenType.GREATER_THAN_OR_EQUAL, ">=", ">=", Token.NOT_FROM_USER_INPUT);
-        Token value5 = new Token(TokenType.NUMBER, "10", 10, Token.NOT_FROM_USER_INPUT);
-
-        Token operator6 = new Token(TokenType.EQUAL, "=", "=", Token.NOT_FROM_USER_INPUT);
-        Token value6 = new Token(TokenType.NUMBER, "10", 10, Token.NOT_FROM_USER_INPUT);
-
-        Token operator7 = new Token(TokenType.NOT_EQUAL, "!=", "!=", Token.NOT_FROM_USER_INPUT);
-        Token value7 = new Token(TokenType.NUMBER, "10", 10, Token.NOT_FROM_USER_INPUT);
-
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator2, value2)).isTrue();
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator3, value3)).isTrue();
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator4, value4)).isFalse();
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator5, value5)).isFalse();
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator6, value6)).isFalse();
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator7, value7)).isTrue();
-    }
-
-    @Test
-    void less_than_bigger_value() {
-        Token operator1 = new Token(TokenType.LESS_THAN, "<", "<", Token.NOT_FROM_USER_INPUT);
-        Token value1 = new Token(TokenType.NUMBER, "10", 10, Token.NOT_FROM_USER_INPUT);
-
-        Token operator2 = new Token(TokenType.LESS_THAN, "<", "<", Token.NOT_FROM_USER_INPUT);
-        Token value2 = new Token(TokenType.NUMBER, "20", "20", Token.NOT_FROM_USER_INPUT);
-
-        Token operator3 = new Token(TokenType.LESS_THAN_OR_EQUAL, "<=", 10, Token.NOT_FROM_USER_INPUT);
-        Token value3 = new Token(TokenType.NUMBER, "20", 20, Token.NOT_FROM_USER_INPUT);
-
-        Token operator4 = new Token(TokenType.GREATER_THAN, ">", ">", Token.NOT_FROM_USER_INPUT);
-        Token value4 = new Token(TokenType.NUMBER, "20", 20, Token.NOT_FROM_USER_INPUT);
-
-        Token operator5 = new Token(TokenType.GREATER_THAN_OR_EQUAL, ">=", ">=", Token.NOT_FROM_USER_INPUT);
-        Token value5 = new Token(TokenType.NUMBER, "20", 20, Token.NOT_FROM_USER_INPUT);
-
-        Token operator6 = new Token(TokenType.EQUAL, "=", "=", Token.NOT_FROM_USER_INPUT);
-        Token value6 = new Token(TokenType.NUMBER, "20", 20, Token.NOT_FROM_USER_INPUT);
-
-        Token operator7 = new Token(TokenType.NOT_EQUAL, "!=", "!=", Token.NOT_FROM_USER_INPUT);
-        Token value7 = new Token(TokenType.NUMBER, "20", 20, Token.NOT_FROM_USER_INPUT);
-
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator2, value2)).isTrue();
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator3, value3)).isTrue();
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator4, value4)).isFalse();
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator5, value5)).isFalse();
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator6, value6)).isFalse();
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator7, value7)).isTrue();
-    }
-
-    @Test
-    void less_than_smaller_value() {
-        Token operator1 = new Token(TokenType.LESS_THAN, "<", "<", Token.NOT_FROM_USER_INPUT);
-        Token value1 = new Token(TokenType.NUMBER, "10", 10, Token.NOT_FROM_USER_INPUT);
-
-        Token operator2 = new Token(TokenType.LESS_THAN, "<", "<", Token.NOT_FROM_USER_INPUT);
-        Token value2 = new Token(TokenType.NUMBER, "5", "5", Token.NOT_FROM_USER_INPUT);
-
-        Token operator3 = new Token(TokenType.LESS_THAN_OR_EQUAL, "<=", 10, Token.NOT_FROM_USER_INPUT);
-        Token value3 = new Token(TokenType.NUMBER, "5", 5, Token.NOT_FROM_USER_INPUT);
-
-        Token operator4 = new Token(TokenType.GREATER_THAN, ">", ">", Token.NOT_FROM_USER_INPUT);
-        Token value4 = new Token(TokenType.NUMBER, "5", 5, Token.NOT_FROM_USER_INPUT);
-
-        Token operator5 = new Token(TokenType.GREATER_THAN_OR_EQUAL, ">=", ">=", Token.NOT_FROM_USER_INPUT);
-        Token value5 = new Token(TokenType.NUMBER, "5", 5, Token.NOT_FROM_USER_INPUT);
-
-        Token operator6 = new Token(TokenType.EQUAL, "=", "=", Token.NOT_FROM_USER_INPUT);
-        Token value6 = new Token(TokenType.NUMBER, "5", 5, Token.NOT_FROM_USER_INPUT);
-
-        Token operator7 = new Token(TokenType.NOT_EQUAL, "!=", "!=", Token.NOT_FROM_USER_INPUT);
-        Token value7 = new Token(TokenType.NUMBER, "5", 5, Token.NOT_FROM_USER_INPUT);
-
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator2, value2)).isTrue();
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator3, value3)).isTrue();
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator4, value4)).isTrue();
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator5, value5)).isTrue();
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator6, value6)).isTrue();
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator7, value7)).isTrue();
-    }
-
-    @Test
-    void less_than_or_equal_same_value() {
-        Token operator1 = new Token(TokenType.LESS_THAN_OR_EQUAL, "<=", "<=", Token.NOT_FROM_USER_INPUT);
-        Token value1 = new Token(TokenType.NUMBER, "10", 10, Token.NOT_FROM_USER_INPUT);
-
-        Token operator2 = new Token(TokenType.LESS_THAN_OR_EQUAL, "<=", "<=", Token.NOT_FROM_USER_INPUT);
-        Token value2 = new Token(TokenType.NUMBER, "10", "10", Token.NOT_FROM_USER_INPUT);
-
-        Token operator3 = new Token(TokenType.LESS_THAN, "<", 10, Token.NOT_FROM_USER_INPUT);
-        Token value3 = new Token(TokenType.NUMBER, "10", 10, Token.NOT_FROM_USER_INPUT);
-
-        Token operator4 = new Token(TokenType.GREATER_THAN, ">", ">", Token.NOT_FROM_USER_INPUT);
-        Token value4 = new Token(TokenType.NUMBER, "10", 10, Token.NOT_FROM_USER_INPUT);
-
-        Token operator5 = new Token(TokenType.GREATER_THAN_OR_EQUAL, ">=", ">=", Token.NOT_FROM_USER_INPUT);
-        Token value5 = new Token(TokenType.NUMBER, "10", 10, Token.NOT_FROM_USER_INPUT);
-
-        Token operator6 = new Token(TokenType.EQUAL, "=", "=", Token.NOT_FROM_USER_INPUT);
-        Token value6 = new Token(TokenType.NUMBER, "10", 10, Token.NOT_FROM_USER_INPUT);
-
-        Token operator7 = new Token(TokenType.NOT_EQUAL, "!=", "!=", Token.NOT_FROM_USER_INPUT);
-        Token value7 = new Token(TokenType.NUMBER, "10", 10, Token.NOT_FROM_USER_INPUT);
-
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator2, value2)).isTrue();
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator3, value3)).isTrue();
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator4, value4)).isFalse();
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator5, value5)).isTrue();
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator6, value6)).isTrue();
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator7, value7)).isTrue();
-    }
-
-    @Test
-    void less_than_or_equal_bigger_value() {
-        Token operator1 = new Token(TokenType.LESS_THAN_OR_EQUAL, "<=", "<=", Token.NOT_FROM_USER_INPUT);
-        Token value1 = new Token(TokenType.NUMBER, "10", 10, Token.NOT_FROM_USER_INPUT);
-
-        Token operator2 = new Token(TokenType.LESS_THAN_OR_EQUAL, "<=", "<=", Token.NOT_FROM_USER_INPUT);
-        Token value2 = new Token(TokenType.NUMBER, "20", "20", Token.NOT_FROM_USER_INPUT);
-
-        Token operator3 = new Token(TokenType.LESS_THAN, "<", 10, Token.NOT_FROM_USER_INPUT);
-        Token value3 = new Token(TokenType.NUMBER, "20", 20, Token.NOT_FROM_USER_INPUT);
-
-        Token operator4 = new Token(TokenType.GREATER_THAN, ">", ">", Token.NOT_FROM_USER_INPUT);
-        Token value4 = new Token(TokenType.NUMBER, "20", 20, Token.NOT_FROM_USER_INPUT);
-
-        Token operator5 = new Token(TokenType.GREATER_THAN_OR_EQUAL, ">=", ">=", Token.NOT_FROM_USER_INPUT);
-        Token value5 = new Token(TokenType.NUMBER, "20", 20, Token.NOT_FROM_USER_INPUT);
-
-        Token operator6 = new Token(TokenType.EQUAL, "=", "=", Token.NOT_FROM_USER_INPUT);
-        Token value6 = new Token(TokenType.NUMBER, "20", 20, Token.NOT_FROM_USER_INPUT);
-
-        Token operator7 = new Token(TokenType.NOT_EQUAL, "!=", "!=", Token.NOT_FROM_USER_INPUT);
-        Token value7 = new Token(TokenType.NUMBER, "20", 20, Token.NOT_FROM_USER_INPUT);
-
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator2, value2)).isTrue();
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator3, value3)).isTrue();
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator4, value4)).isFalse();
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator5, value5)).isFalse();
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator6, value6)).isFalse();
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator7, value7)).isTrue();
-    }
-
-    @Test
-    void less_than_or_equal_smaller_value() {
-        Token operator1 = new Token(TokenType.LESS_THAN_OR_EQUAL, "<=", "<=", Token.NOT_FROM_USER_INPUT);
-        Token value1 = new Token(TokenType.NUMBER, "10", 10, Token.NOT_FROM_USER_INPUT);
-
-        Token operator2 = new Token(TokenType.LESS_THAN_OR_EQUAL, "<=", "<=", Token.NOT_FROM_USER_INPUT);
-        Token value2 = new Token(TokenType.NUMBER, "5", "5", Token.NOT_FROM_USER_INPUT);
-
-        Token operator3 = new Token(TokenType.LESS_THAN, "<", 10, Token.NOT_FROM_USER_INPUT);
-        Token value3 = new Token(TokenType.NUMBER, "5", 5, Token.NOT_FROM_USER_INPUT);
-
-        Token operator4 = new Token(TokenType.GREATER_THAN, ">", ">", Token.NOT_FROM_USER_INPUT);
-        Token value4 = new Token(TokenType.NUMBER, "5", 5, Token.NOT_FROM_USER_INPUT);
-
-        Token operator5 = new Token(TokenType.GREATER_THAN_OR_EQUAL, ">=", ">=", Token.NOT_FROM_USER_INPUT);
-        Token value5 = new Token(TokenType.NUMBER, "5", 5, Token.NOT_FROM_USER_INPUT);
-
-        Token operator6 = new Token(TokenType.EQUAL, "=", "=", Token.NOT_FROM_USER_INPUT);
-        Token value6 = new Token(TokenType.NUMBER, "5", 5, Token.NOT_FROM_USER_INPUT);
-
-        Token operator7 = new Token(TokenType.NOT_EQUAL, "!=", "!=", Token.NOT_FROM_USER_INPUT);
-        Token value7 = new Token(TokenType.NUMBER, "5", 5, Token.NOT_FROM_USER_INPUT);
-
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator2, value2)).isTrue();
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator3, value3)).isTrue();
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator4, value4)).isTrue();
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator5, value5)).isTrue();
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator6, value6)).isTrue();
-        assertThat(ShardDefinitionRangeIntersectChecker.intersects(operator1, value1, operator7, value7)).isTrue();
+    // TODO: add support for not_equal condition
+//    @Test
+//    void not_equal_condition_intersection_test() {
+//        ColumnRangeConditions conditions;
+//        ColumnRangeConditions conditions2;
+//
+//        conditions = new ColumnRangeConditions(
+//                new ColumnRangeCondition(column, greaterThanOrEqualOp, numberToken("10")),
+//                new ColumnRangeCondition(column, lessThanOrEqualOp, numberToken("10")));
+//
+//        conditions2 = new ColumnRangeConditions(
+//                new ColumnRangeCondition(column, new Token(TokenType.NOT_EQUAL, "!=", "!=", Token.NOT_FROM_USER_INPUT), numberToken("5")));
+//        assertThat(ShardDefinitionRangeIntersectChecker.intersects(conditions, conditions2)).isTrue();
+//        assertThat(ShardDefinitionRangeIntersectChecker.intersects(conditions2, conditions)).isTrue();
+//
+//        conditions2 = new ColumnRangeConditions(
+//                new ColumnRangeCondition(column, new Token(TokenType.NOT_EQUAL, "!=", "!=", Token.NOT_FROM_USER_INPUT), numberToken("10")));
+//        assertThat(ShardDefinitionRangeIntersectChecker.intersects(conditions, conditions2)).isFalse();
+//        assertThat(ShardDefinitionRangeIntersectChecker.intersects(conditions2, conditions)).isFalse();
+//
+//        conditions2 = new ColumnRangeConditions(
+//                new ColumnRangeCondition(column, new Token(TokenType.NOT_EQUAL, "!=", "!=", Token.NOT_FROM_USER_INPUT), numberToken("20")));
+//        assertThat(ShardDefinitionRangeIntersectChecker.intersects(conditions, conditions2)).isTrue();
+//        assertThat(ShardDefinitionRangeIntersectChecker.intersects(conditions2, conditions)).isTrue();
+//    }
+
+    private Token numberToken(String number) {
+        return new Token(TokenType.NUMBER, number, new BigDecimal(number), Token.NOT_FROM_USER_INPUT);
     }
 }

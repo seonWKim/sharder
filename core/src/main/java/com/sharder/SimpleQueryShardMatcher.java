@@ -45,6 +45,6 @@ public class SimpleQueryShardMatcher implements QueryShardMatcher {
         //  WHERE: id < 10 OR id >= 20
         //  SHARD: id >= 10 AND id < 20
         return database.shardDefinitionsByTableName().get(simpleQuery.tableName())
-                       .stream().allMatch(it -> it.match(simpleQuery.conditionExpression()));
+                       .stream().anyMatch(it -> it.match(simpleQuery.conditionExpression()));
     }
 }

@@ -134,13 +134,12 @@ class SimpleQueryShardMatcherTest {
     }
 
     @Test
-    void select_where_statement_and_multiple_shard_definition_range() {
+    void select_where_statement_and_multiple_shard_definition_range_1() {
         final DefaultSharderDatabase shard1 =
                 new DefaultSharderDatabase("shard1", List.of(new ShardDefinitionRange("person.id < 10")));
         final DefaultSharderDatabase shard2 =
-                new DefaultSharderDatabase("shard2",
-                                           List.of(new ShardDefinitionRange("person.id >= 10"),
-                                                   new ShardDefinitionRange("person.id < 20")));
+                new DefaultSharderDatabase("shard2", List.of(new ShardDefinitionRange(
+                        "person.id >= 10 AND person.id < 20")));
         final DefaultSharderDatabase shard3 =
                 new DefaultSharderDatabase("shard2", List.of(new ShardDefinitionRange("person.id >= 20")));
 
@@ -173,6 +172,46 @@ class SimpleQueryShardMatcherTest {
         assertThat(matcher.match(query6, shard1)).isTrue();
         assertThat(matcher.match(query6, shard2)).isFalse();
         assertThat(matcher.match(query6, shard3)).isTrue();
+    }
+
+    @Test
+    void select_where_statement_and_multiple_shard_definition_range_2() {
+        final DefaultSharderDatabase shard1 =
+                new DefaultSharderDatabase("shard1",
+                                           List.of(new ShardDefinitionRange(
+                                                   "person.id > 10 AND person.id <= 20")));
+        final DefaultSharderDatabase shard2 =
+                new DefaultSharderDatabase("shard2",
+                                           List.of(new ShardDefinitionRange("person.id <= 10"),
+                                                   new ShardDefinitionRange("person.id > 20")));
+
+        final String query1 = "SELECT * FROM person WHERE id = 5";
+        assertThat(matcher.match(query1, shard1)).isFalse();
+        assertThat(matcher.match(query1, shard2)).isTrue();
+
+        final String query2 = "SELECT * FROM person WHERE id = 15";
+        assertThat(matcher.match(query2, shard1)).isTrue();
+        assertThat(matcher.match(query2, shard2)).isFalse();
+
+        final String query3 = "SELECT * FROM person WHERE id = 25";
+        assertThat(matcher.match(query3, shard1)).isFalse();
+        assertThat(matcher.match(query3, shard2)).isTrue();
+
+        final String query4 = "SELECT * FROM person WHERE id > 0 AND id < 30";
+        assertThat(matcher.match(query4, shard1)).isTrue();
+        assertThat(matcher.match(query4, shard2)).isTrue();
+
+        final String query5 = "SELECT * FROM person WHERE id > 0 AND id < 15";
+        assertThat(matcher.match(query5, shard1)).isTrue();
+        assertThat(matcher.match(query5, shard2)).isTrue();
+
+        final String query6 = "SELECT * FROM person WHERE id < 10 OR id > 20";
+        assertThat(matcher.match(query6, shard1)).isFalse();
+        assertThat(matcher.match(query6, shard2)).isTrue();
+
+        final String query7 = "SELECT * FROM person WHERE id >= 0 AND id < 10";
+        assertThat(matcher.match(query7, shard1)).isFalse();
+        assertThat(matcher.match(query7, shard2)).isTrue();
     }
 
     @Test
@@ -308,9 +347,8 @@ class SimpleQueryShardMatcherTest {
         final DefaultSharderDatabase shard1 =
                 new DefaultSharderDatabase("shard1", List.of(new ShardDefinitionRange("person.id < 10")));
         final DefaultSharderDatabase shard2 =
-                new DefaultSharderDatabase("shard2",
-                                           List.of(new ShardDefinitionRange("person.id >= 10"),
-                                                   new ShardDefinitionRange("person.id < 20")));
+                new DefaultSharderDatabase("shard2", List.of(new ShardDefinitionRange(
+                        "person.id >= 10 AND person.id < 20")));
         final DefaultSharderDatabase shard3 =
                 new DefaultSharderDatabase("shard2", List.of(new ShardDefinitionRange("person.id >= 20")));
 
