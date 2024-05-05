@@ -20,3 +20,25 @@ END;;
 DELIMITER ;
 
 CALL InsertDummyData();
+
+CREATE TABLE orders (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+DELIMITER ;;
+CREATE PROCEDURE InsertDummyDataOrders()
+BEGIN
+    DECLARE i INT DEFAULT 1;
+    WHILE i < 10 DO
+            INSERT INTO orders (id, name) VALUES (i, CONCAT('Order ', i));
+            SET i = i + 1;
+        END WHILE;
+END;;
+DELIMITER ;
+
+CALL InsertDummyDataOrders();
+
+
