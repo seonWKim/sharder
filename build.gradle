@@ -1,16 +1,8 @@
-/**
- * When publishing to Maven Central, make sure ~/.gradle/gradle.properties has the following:
- * ossrhUsername=xxx
- * ossrhPassword=xxx
- *
- * signing.keyId=xxx
- * signing.password=xxx
- * signing.secretKeyRingFile=xxx
- */
 plugins {
     id 'java'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
     id 'org.springframework.boot' version '3.2.2'
+    id("maven-publish")
 }
 
 allprojects {
@@ -53,4 +45,29 @@ subprojects {
         testCompileOnly 'org.projectlombok:lombok:1.18.32'
         testAnnotationProcessor 'org.projectlombok:lombok:1.18.32'
     }
+}
+
+subprojects {
+    apply plugin: "maven-publish"
+    publishing {
+        repositories {
+            maven {
+                name = "GitHubPackages"
+                url = uri("https://maven.pkg.github.com/seonWKim/sharder")
+                credentials {
+                    username = System.getenv("GITHUB_USERNAME")
+                    password = System.getenv("GITHUB_TOKEN")
+                }
+            }
+        }
+        publications {
+            gpr(MavenPublication) {
+                from(components.java)
+            }
+        }
+    }
+}
+
+tasks.register('publishCore') {
+    dependsOn ':core:publish'
 }
