@@ -1,7 +1,5 @@
 package io.github.seonwkim;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-
 import java.util.Collections;
 import java.util.List;
 
@@ -11,10 +9,45 @@ import org.junit.jupiter.api.Test;
 import io.github.seonwkim.shard.DefaultSharderDatabase;
 import io.github.seonwkim.shard.ShardDefinitionMod;
 import io.github.seonwkim.shard.ShardDefinitionRange;
+import io.github.seonwkim.shard.SharderDatabase;
 
 class SimpleQueryShardMatcherTest {
 
     SimpleQueryShardMatcher matcher = new SimpleQueryShardMatcher();
+
+    @Test
+    void shard_should_match_all_when_no_shard_definition_exists_1() {
+        final SharderDatabase shard1 = new SharderDatabase() {
+            @Override
+            public String databaseName() {
+                return "shard1";
+            }
+        };
+        final SharderDatabase shard2 = new SharderDatabase() {
+            @Override
+            public String databaseName() {
+                return "shard2";
+            }
+        };
+
+        final String query1 = "SELECT * FROM person;";
+        AssertionsForClassTypes.assertThat(matcher.match(query1, shard1)).isTrue();
+        AssertionsForClassTypes.assertThat(matcher.match(query1, shard2)).isTrue();
+    }
+
+    @Test
+    void shard_should_match_all_when_no_shard_definition_exists() {
+        final DefaultSharderDatabase shard1 = new DefaultSharderDatabase("shard1", Collections.emptyList());
+        final DefaultSharderDatabase shard2 = new DefaultSharderDatabase("shard2", Collections.emptyList());
+
+        final String query1 = "SELECT * FROM person;";
+        AssertionsForClassTypes.assertThat(matcher.match(query1, shard1)).isTrue();
+        AssertionsForClassTypes.assertThat(matcher.match(query1, shard2)).isTrue();
+
+        final String query2 = "SELECT * FROM person WHERE id = 1;";
+        AssertionsForClassTypes.assertThat(matcher.match(query2, shard1)).isTrue();
+        AssertionsForClassTypes.assertThat(matcher.match(query2, shard2)).isTrue();
+    }
 
     @Test
     void select_no_where_statement_with_shard_definition_mod() {
