@@ -24,4 +24,3 @@ Sharder is a library to easily manage application level database sharding.
 
 ## How to use? 
 - View the [example](./example) for a simple example of how to use Sharder.
-- 

@@ -1,8 +1,55 @@
+import com.vanniktech.maven.publish.SonatypeHost
+
 plugins {
     id 'java'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
     id 'org.springframework.boot' version '3.2.2'
-    id("maven-publish")
+    id "com.vanniktech.maven.publish" version "0.28.0"
+}
+
+mavenPublishing {
+    publishToMavenCentral(SonatypeHost.S01)
+
+    signAllPublications()
+
+    coordinates(project.group as String, project.name, project.version as String)
+
+    pom {
+        name = "Sharder"
+        description = "Sharder is an easy-to-use library to handle application level database sharding."
+        inceptionYear = "2024"
+        licenses {
+            license {
+                name = "Apache License, Version 2.0"
+                url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
+            }
+        }
+        developers {
+            developer {
+                id = "seonWKim"
+                name = "Seon Woo Kim"
+                email = "seonwoo960000.kim@gmail.com"
+            }
+        }
+        scm {
+            url = "https://github.com/seonWKIm/sharder.git/"
+            connection = "scm:git:git:github.com/seonWKim/sharder.git"
+            developerConnection = "scm:git:ssh://github.com/seonWKim/sharder.git"
+        }
+    }
+
+    repositories {
+        maven {
+            def isSnapshot = project.version.endsWith("-SNAPSHOT")
+            url = isSnapshot ?
+                    uri("https://s01.oss.sonatype.org/content/repositories/snapshots/") :
+                    uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
+            credentials {
+                username = project.properties["mavenCentralUsername"]
+                password = project.properties["mavenCentralPassword"]
+            }
+        }
+    }
 }
 
 allprojects {
@@ -45,29 +92,4 @@ subprojects {
         testCompileOnly 'org.projectlombok:lombok:1.18.32'
         testAnnotationProcessor 'org.projectlombok:lombok:1.18.32'
     }
-}
-
-subprojects {
-    apply plugin: "maven-publish"
-    publishing {
-        repositories {
-            maven {
-                name = "GitHubPackages"
-                url = uri("https://maven.pkg.github.com/seonWKim/sharder")
-                credentials {
-                    username = System.getenv("GITHUB_USERNAME")
-                    password = System.getenv("GITHUB_TOKEN")
-                }
-            }
-        }
-        publications {
-            gpr(MavenPublication) {
-                from(components.java)
-            }
-        }
-    }
-}
-
-tasks.register('publishCore') {
-    dependsOn ':core:publish'
 }
