@@ -1,50 +1,93 @@
 import com.vanniktech.maven.publish.SonatypeHost
+
 plugins {
     id 'java'
     id "com.vanniktech.maven.publish" version "0.28.0"
 }
 
-mavenPublishing {
-    publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
 
-    signAllPublications()
+// Use this command to publish to Maven
+tasks.register('publishCoreModule') {
+    doFirst {
+        project.ext.allowPublish = true
+    }
+    dependsOn 'verifyProperties'
+    dependsOn ':core:publish'
+}
 
-    coordinates(project.group as String, project.name, project.version as String)
-    pom {
-        name = "Sharder"
-        description = "Sharder is an easy-to-use library to handle application level database sharding."
-        inceptionYear = "2024"
-        url = "https://github.com/seonWKim/sharder/"
-
-        licenses {
-            license {
-                name = "Apache License, Version 2.0"
-                url = "https://www.apache.org/licenses/LICENSE-2.0.txt"
-            }
-        }
-        developers {
-            developer {
-                id = "seonWKim"
-                name = "Seon Woo Kim"
-                url = "https://github.com/seonWKim"
-            }
-        }
-        scm {
-            url = "https://github.com/seonWKim/sharder/"
-            connection = "scm:git:git:github.com/seonWKim/sharder.git"
-            developerConnection = "scm:git:ssh://github.com/seonWKim/sharder.git"
+gradle.taskGraph.whenReady { graph ->
+    if (graph.hasTask(':publish')) {
+        if (!project.hasProperty('allowPublish')) {
+            throw new GradleException("Direct execution of the 'publish' task is not allowed. Use the 'publishCoreModule' task instead.")
         }
     }
+}
 
-    repositories {
-        maven {
-            def isSnapshot = project.version.endsWith("-SNAPSHOT")
-            url = isSnapshot ?
-                    "https://oss.sonatype.org/content/repositories/snapshots/" :
-                    "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
-            credentials {
-                username = project.properties["mavenCentralUsername"]
-                password = project.properties["mavenCentralPassword"]
+tasks.register('verifyProperties') {
+    doLast {
+        def properties = [
+                // Visit "https://central.sonatype.com/" to generate a token
+                'mavenCentralUsername', // Username of your user token.
+                'mavenCentralPassword', // Password of your user token
+                'signing.keyId', // Your 8 length GPG key ID
+                'signing.password', // Password of your GPG key
+                'signing.secretKeyRingFile' // Absolute Path to your secret key ring file
+        ]
+        properties.each { property ->
+            if (!project.hasProperty(property) || project[property].trim().isEmpty()) {
+                throw new GradleException("Required property '$property' is missing or empty in gradle.properties")
+            }
+        }
+    }
+}
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'com.vanniktech.maven.publish'
+
+    mavenPublishing {
+        publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
+
+        signAllPublications()
+
+        def projectName = "${rootProject.name}-${project.name}"
+        coordinates(project.group as String, projectName, project.version as String)
+        pom {
+            name = "Sharder"
+            description = "Sharder is an easy-to-use library to handle application level database sharding."
+            inceptionYear = "2024"
+            url = "https://github.com/seonWKim/sharder/"
+
+            licenses {
+                license {
+                    name = "Apache License, Version 2.0"
+                    url = "https://www.apache.org/licenses/LICENSE-2.0.txt"
+                }
+            }
+            developers {
+                developer {
+                    id = "seonWKim"
+                    name = "Seon Woo Kim"
+                    url = "https://github.com/seonWKim"
+                }
+            }
+            scm {
+                url = "https://github.com/seonWKim/sharder/"
+                connection = "scm:git:git:github.com/seonWKim/sharder.git"
+                developerConnection = "scm:git:ssh://github.com/seonWKim/sharder.git"
+            }
+        }
+
+        repositories {
+            maven {
+                def isSnapshot = project.version.endsWith("-SNAPSHOT")
+                url = isSnapshot ?
+                        "https://oss.sonatype.org/content/repositories/snapshots/" :
+                        "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+                credentials {
+                    username = project.properties["mavenCentralUsername"]
+                    password = project.properties["mavenCentralPassword"]
+                }
             }
         }
     }
