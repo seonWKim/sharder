@@ -18,7 +18,7 @@ Run the following command to start database
 
 Run the following command to start the application. Replace the phase with the desired phase(use `local` as default)
 ```bash
-$ ../gradlew runJar -Pprofile=<phase> 
+$ ../gradlew :example:run -Pprofile=<phase> 
 ```
                        
 Go to [docs](http://localhost:8080/docs) to access the API documentation
