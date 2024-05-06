@@ -8,6 +8,7 @@ public enum StatementType {
     QUERY_INSERT,
     QUERY_UPDATE,
     QUERY_DELETE,
+    QUERY_FROM,
     QUERY_WHERE,
 
     EXPR,

@@ -37,7 +37,7 @@ class QueryParserTest {
         final SelectStatement selectStatement = (SelectStatement) statement.get(0);
         assertTrue(selectStatement.isSelectStar());
         assertThat(selectStatement.getFields()).isEmpty();
-        assertThat(selectStatement.getTableName()).isEqualTo("members");
+        assertThat(selectStatement.tableName()).isEqualTo("members");
 
         assertThat(statement.get(1).getClass()).isEqualTo(ExpressionStatement.class);
         final ExpressionStatement expressionStatement = (ExpressionStatement) statement.get(1);
@@ -55,8 +55,8 @@ class QueryParserTest {
         final SelectStatement selectStatement = (SelectStatement) statement.get(0);
         assertFalse(selectStatement.isSelectStar());
         assertThat(selectStatement.getFields()).containsExactly("id", "age", "databaseName");
-        assertThat(selectStatement.getSchemaName()).isNull();
-        assertThat(selectStatement.getTableName()).isEqualTo("members");
+        assertThat(selectStatement.schemaName()).isNull();
+        assertThat(selectStatement.tableName()).isEqualTo("members");
     }
 
     @Test
@@ -70,8 +70,8 @@ class QueryParserTest {
         final SelectStatement selectStatement = (SelectStatement) statement.get(0);
         assertTrue(selectStatement.isSelectStar());
         assertThat(selectStatement.getFields()).isEmpty();
-        assertThat(selectStatement.getSchemaName()).isEqualTo("test");
-        assertThat(selectStatement.getTableName()).isEqualTo("members");
+        assertThat(selectStatement.schemaName()).isEqualTo("test");
+        assertThat(selectStatement.tableName()).isEqualTo("members");
 
         assertThat(statement.get(1).getClass()).isEqualTo(ExpressionStatement.class);
         final ExpressionStatement expressionStatement = (ExpressionStatement) statement.get(1);
@@ -89,8 +89,8 @@ class QueryParserTest {
         final SelectStatement selectStatement = (SelectStatement) statement.get(0);
         assertTrue(selectStatement.isSelectStar());
         assertThat(selectStatement.getFields()).isEmpty();
-        assertThat(selectStatement.getSchemaName()).isEqualTo("test");
-        assertThat(selectStatement.getTableName()).isEqualTo("members");
+        assertThat(selectStatement.schemaName()).isEqualTo("test");
+        assertThat(selectStatement.tableName()).isEqualTo("members");
 
         assertThat(statement.get(1).getClass()).isEqualTo(WhereStatement.class);
         final WhereStatement expressionStatement = (WhereStatement) statement.get(1);
@@ -120,19 +120,25 @@ class QueryParserTest {
         assertThat(statement.get(1).getClass()).isEqualTo(WhereStatement.class);
         final WhereStatement whereExpression = (WhereStatement) statement.get(1);
 
-        AssertionsForClassTypes.assertThat(whereExpression.getExpression().getClass()).isEqualTo(ConditionExpression.class);
+        AssertionsForClassTypes.assertThat(whereExpression.getExpression().getClass()).isEqualTo(
+                ConditionExpression.class);
         final ConditionExpression conditionExpression1 = (ConditionExpression) whereExpression.getExpression();
         assertThat(conditionExpression1.getTree().getTokens().size()).isEqualTo(5);
-        AssertionsForInterfaceTypes.assertThat(conditionExpression1.getTree().getTokens().get(0).type()).isEqualTo(
-                TokenType.LEFT_PAREN);
-        AssertionsForInterfaceTypes.assertThat(conditionExpression1.getTree().getTokens().get(1).type()).isEqualTo(
-                TokenType.IDENTIFIER);
-        AssertionsForInterfaceTypes.assertThat(conditionExpression1.getTree().getTokens().get(2).type()).isEqualTo(
-                TokenType.EQUAL);
-        AssertionsForInterfaceTypes.assertThat(conditionExpression1.getTree().getTokens().get(3).type()).isEqualTo(
-                TokenType.NUMBER);
-        AssertionsForInterfaceTypes.assertThat(conditionExpression1.getTree().getTokens().get(4).type()).isEqualTo(
-                TokenType.RIGHT_PAREN);
+        AssertionsForInterfaceTypes.assertThat(conditionExpression1.getTree().getTokens().get(0).type())
+                                   .isEqualTo(
+                                           TokenType.LEFT_PAREN);
+        AssertionsForInterfaceTypes.assertThat(conditionExpression1.getTree().getTokens().get(1).type())
+                                   .isEqualTo(
+                                           TokenType.IDENTIFIER);
+        AssertionsForInterfaceTypes.assertThat(conditionExpression1.getTree().getTokens().get(2).type())
+                                   .isEqualTo(
+                                           TokenType.EQUAL);
+        AssertionsForInterfaceTypes.assertThat(conditionExpression1.getTree().getTokens().get(3).type())
+                                   .isEqualTo(
+                                           TokenType.NUMBER);
+        AssertionsForInterfaceTypes.assertThat(conditionExpression1.getTree().getTokens().get(4).type())
+                                   .isEqualTo(
+                                           TokenType.RIGHT_PAREN);
     }
 
     @Test
@@ -144,8 +150,10 @@ class QueryParserTest {
 
         assertThat(statement.get(1).getClass()).isEqualTo(WhereStatement.class);
         final WhereStatement expressionStatement = (WhereStatement) statement.get(1);
-        AssertionsForClassTypes.assertThat(expressionStatement.getExpression().getClass()).isEqualTo(ConditionExpression.class);
-        final ConditionExpression conditionExpression = (ConditionExpression) expressionStatement.getExpression();
+        AssertionsForClassTypes.assertThat(expressionStatement.getExpression().getClass()).isEqualTo(
+                ConditionExpression.class);
+        final ConditionExpression conditionExpression =
+                (ConditionExpression) expressionStatement.getExpression();
 
         final List<Token> whereExpressionTokens = conditionExpression.getTree().getTokens();
         assertThat(whereExpressionTokens.size()).isEqualTo(7);
@@ -171,8 +179,10 @@ class QueryParserTest {
 
         assertThat(statement.get(1).getClass()).isEqualTo(WhereStatement.class);
         final WhereStatement expressionStatement = (WhereStatement) statement.get(1);
-        AssertionsForClassTypes.assertThat(expressionStatement.getExpression().getClass()).isEqualTo(ConditionExpression.class);
-        final ConditionExpression conditionExpression = (ConditionExpression) expressionStatement.getExpression();
+        AssertionsForClassTypes.assertThat(expressionStatement.getExpression().getClass()).isEqualTo(
+                ConditionExpression.class);
+        final ConditionExpression conditionExpression =
+                (ConditionExpression) expressionStatement.getExpression();
 
         final List<Token> whereExpressionTokens = conditionExpression.getTree().getTokens();
         assertThat(whereExpressionTokens.size()).isEqualTo(7);
@@ -200,8 +210,10 @@ class QueryParserTest {
         assertThat(statement.get(0).getClass()).isEqualTo(SelectStatement.class);
         assertThat(statement.get(1).getClass()).isEqualTo(WhereStatement.class);
         final WhereStatement expressionStatement = (WhereStatement) statement.get(1);
-        AssertionsForClassTypes.assertThat(expressionStatement.getExpression().getClass()).isEqualTo(ConditionExpression.class);
-        final ConditionExpression conditionExpression = (ConditionExpression) expressionStatement.getExpression();
+        AssertionsForClassTypes.assertThat(expressionStatement.getExpression().getClass()).isEqualTo(
+                ConditionExpression.class);
+        final ConditionExpression conditionExpression =
+                (ConditionExpression) expressionStatement.getExpression();
 
         final List<Token> whereExpressionTokens = conditionExpression.getTree().getTokens();
         assertThat(whereExpressionTokens.size()).isEqualTo(7);
@@ -224,8 +236,8 @@ class QueryParserTest {
         assertThat(statement.get(0).getClass()).isEqualTo(InsertStatement.class);
         final InsertStatement insertStatement = (InsertStatement) statement.get(0);
 
-        assertThat(insertStatement.getSchemaName()).isNull();
-        assertThat(insertStatement.getTableName()).isEqualTo("members");
+        assertThat(insertStatement.schemaName()).isNull();
+        assertThat(insertStatement.tableName()).isEqualTo("members");
 
         AssertionsForInterfaceTypes.assertThat(insertStatement.getColumns().get(0).type()).isEqualTo(
                 TokenType.IDENTIFIER);
@@ -252,8 +264,8 @@ class QueryParserTest {
         assertThat(statement.get(0).getClass()).isEqualTo(InsertStatement.class);
         final InsertStatement insertStatement = (InsertStatement) statement.get(0);
 
-        assertThat(insertStatement.getSchemaName()).isEqualTo("test");
-        assertThat(insertStatement.getTableName()).isEqualTo("members");
+        assertThat(insertStatement.schemaName()).isEqualTo("test");
+        assertThat(insertStatement.tableName()).isEqualTo("members");
 
         AssertionsForInterfaceTypes.assertThat(insertStatement.getColumns().get(0).type()).isEqualTo(
                 TokenType.IDENTIFIER);
@@ -298,8 +310,8 @@ class QueryParserTest {
         assertThat(statement.get(0).getClass()).isEqualTo(UpdateStatement.class);
         final UpdateStatement updateStatement = (UpdateStatement) statement.get(0);
 
-        assertThat(updateStatement.getSchemaName()).isNull();
-        assertThat(updateStatement.getTableName()).isEqualTo("members");
+        assertThat(updateStatement.schemaName()).isNull();
+        assertThat(updateStatement.tableName()).isEqualTo("members");
 
         AssertionsForInterfaceTypes.assertThat(updateStatement.getColumns().get(0).type()).isEqualTo(
                 TokenType.IDENTIFIER);
@@ -325,8 +337,8 @@ class QueryParserTest {
 
         assertThat(statement.get(0).getClass()).isEqualTo(UpdateStatement.class);
         final UpdateStatement updateStatement = (UpdateStatement) statement.get(0);
-        assertThat(updateStatement.getSchemaName()).isEqualTo("test");
-        assertThat(updateStatement.getTableName()).isEqualTo("members");
+        assertThat(updateStatement.schemaName()).isEqualTo("test");
+        assertThat(updateStatement.tableName()).isEqualTo("members");
 
         AssertionsForInterfaceTypes.assertThat(updateStatement.getColumns().get(0).type()).isEqualTo(
                 TokenType.IDENTIFIER);
@@ -352,8 +364,8 @@ class QueryParserTest {
 
         assertThat(statement.get(0).getClass()).isEqualTo(UpdateStatement.class);
         final UpdateStatement updateStatement = (UpdateStatement) statement.get(0);
-        assertThat(updateStatement.getSchemaName()).isNull();
-        assertThat(updateStatement.getTableName()).isEqualTo("members");
+        assertThat(updateStatement.schemaName()).isNull();
+        assertThat(updateStatement.tableName()).isEqualTo("members");
 
         AssertionsForInterfaceTypes.assertThat(updateStatement.getColumns().get(0).type()).isEqualTo(
                 TokenType.IDENTIFIER);
@@ -371,15 +383,19 @@ class QueryParserTest {
 
         assertThat(statement.get(1).getClass()).isEqualTo(WhereStatement.class);
         final WhereStatement whereStatement = (WhereStatement) statement.get(1);
-        AssertionsForClassTypes.assertThat(whereStatement.getExpression().getClass()).isEqualTo(ConditionExpression.class);
+        AssertionsForClassTypes.assertThat(whereStatement.getExpression().getClass()).isEqualTo(
+                ConditionExpression.class);
         final ConditionExpression conditionExpression = (ConditionExpression) whereStatement.getExpression();
         assertThat(conditionExpression.getTree().getTokens().size()).isEqualTo(3);
-        AssertionsForInterfaceTypes.assertThat(conditionExpression.getTree().getTokens().get(0).type()).isEqualTo(
-                TokenType.IDENTIFIER);
-        AssertionsForInterfaceTypes.assertThat(conditionExpression.getTree().getTokens().get(1).type()).isEqualTo(
-                TokenType.EQUAL);
-        AssertionsForInterfaceTypes.assertThat(conditionExpression.getTree().getTokens().get(2).type()).isEqualTo(
-                TokenType.NUMBER);
+        AssertionsForInterfaceTypes.assertThat(conditionExpression.getTree().getTokens().get(0).type())
+                                   .isEqualTo(
+                                           TokenType.IDENTIFIER);
+        AssertionsForInterfaceTypes.assertThat(conditionExpression.getTree().getTokens().get(1).type())
+                                   .isEqualTo(
+                                           TokenType.EQUAL);
+        AssertionsForInterfaceTypes.assertThat(conditionExpression.getTree().getTokens().get(2).type())
+                                   .isEqualTo(
+                                           TokenType.NUMBER);
     }
 
     @Test
@@ -392,8 +408,8 @@ class QueryParserTest {
         assertThat(statement.get(0).getClass()).isEqualTo(DeleteStatement.class);
         final DeleteStatement deleteStatement = (DeleteStatement) statement.get(0);
 
-        assertThat(deleteStatement.getSchemaName()).isNull();
-        assertThat(deleteStatement.getTableName()).isEqualTo("members");
+        assertThat(deleteStatement.schemaName()).isNull();
+        assertThat(deleteStatement.tableName()).isEqualTo("members");
     }
 
     @Test
@@ -406,8 +422,8 @@ class QueryParserTest {
         assertThat(statement.get(0).getClass()).isEqualTo(DeleteStatement.class);
         final DeleteStatement deleteStatement = (DeleteStatement) statement.get(0);
 
-        assertThat(deleteStatement.getSchemaName()).isEqualTo("test");
-        assertThat(deleteStatement.getTableName()).isEqualTo("members");
+        assertThat(deleteStatement.schemaName()).isEqualTo("test");
+        assertThat(deleteStatement.tableName()).isEqualTo("members");
     }
 
     @Test
@@ -419,19 +435,23 @@ class QueryParserTest {
 
         assertThat(statement.get(0).getClass()).isEqualTo(DeleteStatement.class);
         final DeleteStatement deleteStatement = (DeleteStatement) statement.get(0);
-        assertThat(deleteStatement.getSchemaName()).isNull();
-        assertThat(deleteStatement.getTableName()).isEqualTo("members");
+        assertThat(deleteStatement.schemaName()).isNull();
+        assertThat(deleteStatement.tableName()).isEqualTo("members");
 
         assertThat(statement.get(1).getClass()).isEqualTo(WhereStatement.class);
         final WhereStatement whereStatement = (WhereStatement) statement.get(1);
-        AssertionsForClassTypes.assertThat(whereStatement.getExpression().getClass()).isEqualTo(ConditionExpression.class);
+        AssertionsForClassTypes.assertThat(whereStatement.getExpression().getClass()).isEqualTo(
+                ConditionExpression.class);
         final ConditionExpression conditionExpression = (ConditionExpression) whereStatement.getExpression();
         assertThat(conditionExpression.getTree().getTokens().size()).isEqualTo(3);
-        AssertionsForInterfaceTypes.assertThat(conditionExpression.getTree().getTokens().get(0).type()).isEqualTo(
-                TokenType.IDENTIFIER);
-        AssertionsForInterfaceTypes.assertThat(conditionExpression.getTree().getTokens().get(1).type()).isEqualTo(
-                TokenType.EQUAL);
-        AssertionsForInterfaceTypes.assertThat(conditionExpression.getTree().getTokens().get(2).type()).isEqualTo(
-                TokenType.NUMBER);
+        AssertionsForInterfaceTypes.assertThat(conditionExpression.getTree().getTokens().get(0).type())
+                                   .isEqualTo(
+                                           TokenType.IDENTIFIER);
+        AssertionsForInterfaceTypes.assertThat(conditionExpression.getTree().getTokens().get(1).type())
+                                   .isEqualTo(
+                                           TokenType.EQUAL);
+        AssertionsForInterfaceTypes.assertThat(conditionExpression.getTree().getTokens().get(2).type())
+                                   .isEqualTo(
+                                           TokenType.NUMBER);
     }
 }

@@ -3,9 +3,8 @@ package io.github.seonwkim.query.state;
 import java.util.List;
 
 import io.github.seonwkim.StatementType;
-import io.github.seonwkim.FirstStatement;
+import io.github.seonwkim.StatementWithTableMeta;
 import io.github.seonwkim.Token;
-
 import lombok.Getter;
 
 /**
@@ -13,7 +12,7 @@ import lombok.Getter;
  * e.g. UPDATE schema.table_name SET column1 = value1, column2 = value2;
  */
 @Getter
-public class UpdateStatement extends FirstStatement {
+public class UpdateStatement extends StatementWithTableMeta {
     public static UpdateStatementBuilder builder() {return new UpdateStatementBuilder();}
 
     private final String schemaName;
@@ -31,6 +30,11 @@ public class UpdateStatement extends FirstStatement {
     @Override
     public StatementType getStatementType() {
         return StatementType.QUERY_UPDATE;
+    }
+
+    @Override
+    public String schemaName() {
+        return schemaName;
     }
 
     @Override
