@@ -1,8 +1,96 @@
+import com.vanniktech.maven.publish.SonatypeHost
+
 plugins {
     id 'java'
-    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
-    id 'org.springframework.boot' version '3.2.2'
-    id("maven-publish")
+    id "com.vanniktech.maven.publish" version "0.28.0"
+}
+
+
+// Use this command to publish to Maven
+tasks.register('publishCoreModule') {
+    doFirst {
+        project.ext.allowPublish = true
+    }
+    dependsOn 'verifyProperties'
+    dependsOn ':core:publish'
+}
+
+gradle.taskGraph.whenReady { graph ->
+    if (graph.hasTask(':publish')) {
+        if (!project.hasProperty('allowPublish')) {
+            throw new GradleException("Direct execution of the 'publish' task is not allowed. Use the 'publishCoreModule' task instead.")
+        }
+    }
+}
+
+tasks.register('verifyProperties') {
+    doLast {
+        def properties = [
+                // Visit "https://central.sonatype.com/" to generate a token
+                'mavenCentralUsername', // Username of your user token.
+                'mavenCentralPassword', // Password of your user token
+                'signing.keyId', // Your 8 length GPG key ID
+                'signing.password', // Password of your GPG key
+                'signing.secretKeyRingFile' // Absolute Path to your secret key ring file
+        ]
+        properties.each { property ->
+            if (!project.hasProperty(property) || project[property].trim().isEmpty()) {
+                throw new GradleException("Required property '$property' is missing or empty in gradle.properties")
+            }
+        }
+    }
+}
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'com.vanniktech.maven.publish'
+
+    mavenPublishing {
+        publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
+
+        signAllPublications()
+
+        def projectName = "${rootProject.name}-${project.name}"
+        coordinates(project.group as String, projectName, project.version as String)
+        pom {
+            name = "Sharder"
+            description = "Sharder is an easy-to-use library to handle application level database sharding."
+            inceptionYear = "2024"
+            url = "https://github.com/seonWKim/sharder/"
+
+            licenses {
+                license {
+                    name = "Apache License, Version 2.0"
+                    url = "https://www.apache.org/licenses/LICENSE-2.0.txt"
+                }
+            }
+            developers {
+                developer {
+                    id = "seonWKim"
+                    name = "Seon Woo Kim"
+                    url = "https://github.com/seonWKim"
+                }
+            }
+            scm {
+                url = "https://github.com/seonWKim/sharder/"
+                connection = "scm:git:git:github.com/seonWKim/sharder.git"
+                developerConnection = "scm:git:ssh://github.com/seonWKim/sharder.git"
+            }
+        }
+
+        repositories {
+            maven {
+                def isSnapshot = project.version.endsWith("-SNAPSHOT")
+                url = isSnapshot ?
+                        "https://oss.sonatype.org/content/repositories/snapshots/" :
+                        "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+                credentials {
+                    username = project.properties["mavenCentralUsername"]
+                    password = project.properties["mavenCentralPassword"]
+                }
+            }
+        }
+    }
 }
 
 allprojects {
@@ -13,61 +101,4 @@ allprojects {
     tasks.withType(Test) {
         useJUnitPlatform()
     }
-}
-
-subprojects {
-    apply plugin: 'java'
-    apply plugin: 'io.spring.dependency-management'
-    apply plugin: 'org.springframework.boot'
-
-    dependencyManagement {
-        imports {
-            mavenBom 'com.linecorp.armeria:armeria-bom:1.28.1'
-        }
-    }
-
-    dependencies {
-        implementation 'com.linecorp.armeria:armeria-spring-boot3-starter'
-        implementation 'com.linecorp.armeria:armeria-logback'
-        implementation 'org.springframework.data:spring-data-jdbc:3.2.5'
-        implementation 'com.zaxxer:HikariCP:4.0.3'
-        implementation 'mysql:mysql-connector-java:8.0.33'
-
-        annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor:3.2.2'
-        annotationProcessor 'org.projectlombok:lombok:1.18.32'
-
-        runtimeOnly 'com.linecorp.armeria:armeria-spring-boot3-actuator-starter'
-        compileOnly 'org.projectlombok:lombok:1.18.32'
-
-        testImplementation 'org.mockito:mockito-core:5.11.0'
-        testImplementation 'org.junit.jupiter:junit-jupiter-api'
-        testImplementation 'org.springframework.boot:spring-boot-starter-test:3.2.2'
-        testCompileOnly 'org.projectlombok:lombok:1.18.32'
-        testAnnotationProcessor 'org.projectlombok:lombok:1.18.32'
-    }
-}
-
-subprojects {
-    apply plugin: "maven-publish"
-    publishing {
-        repositories {
-            maven {
-                name = "GitHubPackages"
-                url = uri("https://maven.pkg.github.com/seonWKim/sharder")
-                credentials {
-                    username = System.getenv("GITHUB_USERNAME")
-                    password = System.getenv("GITHUB_TOKEN")
-                }
-            }
-        }
-        publications {
-            gpr(MavenPublication) {
-                from(components.java)
-            }
-        }
-    }
-}
-
-tasks.register('publishCore') {
-    dependsOn ':core:publish'
 }
