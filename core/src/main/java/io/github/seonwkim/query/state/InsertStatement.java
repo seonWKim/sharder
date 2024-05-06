@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.github.seonwkim.StatementType;
-import io.github.seonwkim.FirstStatement;
+import io.github.seonwkim.StatementWithTableMeta;
 import io.github.seonwkim.Nullable;
 import io.github.seonwkim.Token;
 import io.github.seonwkim.query.state.expr.ConditionExpression;
@@ -16,7 +16,7 @@ import lombok.Getter;
  * e.g. INSERT INTO schema.table_name (column1, column2) VALUES (value1, value2);
  */
 @Getter
-public class InsertStatement extends FirstStatement {
+public class InsertStatement extends StatementWithTableMeta {
     public static InsertStatementBuilder builder() {return new InsertStatementBuilder();}
 
     private final List<Token> columns;
@@ -52,6 +52,11 @@ public class InsertStatement extends FirstStatement {
     @Override
     public StatementType getStatementType() {
         return StatementType.QUERY_INSERT;
+    }
+
+    @Override
+    public String schemaName() {
+        return schemaName;
     }
 
     @Override

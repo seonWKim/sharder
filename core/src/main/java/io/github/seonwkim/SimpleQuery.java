@@ -12,7 +12,7 @@ import io.github.seonwkim.query.state.WhereStatement;
  */
 public class SimpleQuery {
 
-    private final FirstStatement firstStatement;
+    private final StatementWithTableMeta statementWithTableMeta;
     @Nullable
     private final Expression conditionExpression;
 
@@ -27,8 +27,8 @@ public class SimpleQuery {
             throw new IllegalStateException("No statement found in the query");
         }
 
-        firstStatement = (FirstStatement) statements.get(0);
-        final StatementType type = firstStatement.getStatementType();
+        statementWithTableMeta = (StatementWithTableMeta) statements.get(0);
+        final StatementType type = statementWithTableMeta.getStatementType();
         switch (type) {
             case QUERY_SELECT, QUERY_UPDATE, QUERY_DELETE:
                 this.conditionExpression = getConditionExpression(statements);
@@ -42,7 +42,7 @@ public class SimpleQuery {
     }
 
     public String tableName() {
-        return firstStatement.tableName();
+        return statementWithTableMeta.tableName();
     }
 
     @Nullable

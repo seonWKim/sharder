@@ -1,8 +1,7 @@
 package io.github.seonwkim.query.state;
 
 import io.github.seonwkim.StatementType;
-import io.github.seonwkim.FirstStatement;
-
+import io.github.seonwkim.StatementWithTableMeta;
 import lombok.Getter;
 
 /**
@@ -10,15 +9,14 @@ import lombok.Getter;
  * e.g. DELETE FROM schema.table_name;
  */
 @Getter
-public class DeleteStatement extends FirstStatement {
+public class DeleteStatement extends StatementWithTableMeta {
+
     public static DeleteStatementBuilder builder() {return new DeleteStatementBuilder();}
 
-    private final String schemaName;
-    private final String tableName;
+    private final FromStatement fromStatement;
 
-    DeleteStatement(String schemaName, String tableName) {
-        this.schemaName = schemaName;
-        this.tableName = tableName;
+    DeleteStatement(FromStatement fromStatement) {
+        this.fromStatement = fromStatement;
     }
 
     @Override
@@ -27,33 +25,31 @@ public class DeleteStatement extends FirstStatement {
     }
 
     @Override
+    public String schemaName() {
+        return fromStatement.getSchemaName();
+    }
+
+    @Override
     public String tableName() {
-        return tableName;
+        return fromStatement.getTableName();
     }
 
     public static class DeleteStatementBuilder {
-        private String schemaName;
-        private String tableName;
+        private FromStatement fromStatement;
 
         DeleteStatementBuilder() {}
 
-        public DeleteStatementBuilder schemaName(String schemaName) {
-            this.schemaName = schemaName;
-            return this;
-        }
-
-        public DeleteStatementBuilder tableName(String tableName) {
-            this.tableName = tableName;
+        public DeleteStatementBuilder fromStatement(FromStatement fromStatement) {
+            this.fromStatement = fromStatement;
             return this;
         }
 
         public DeleteStatement build() {
-            return new DeleteStatement(this.schemaName, this.tableName);
+            return new DeleteStatement(this.fromStatement);
         }
 
         public String toString() {
-            return "DeleteStatement.DeleteStatementBuilder(schemaName=" + this.schemaName + ", tableName="
-                   + this.tableName + ")";
+            return "DeleteStatement.DeleteStatementBuilder(fromStatement=" + this.fromStatement + ")";
         }
     }
 }

@@ -7,6 +7,8 @@ import io.github.seonwkim.Expression;
 import io.github.seonwkim.ExpressionStatement;
 import io.github.seonwkim.Parser;
 import io.github.seonwkim.TokenTypeCategory;
+import io.github.seonwkim.query.state.FromStatement;
+import io.github.seonwkim.query.state.FromStatement.FromStatementBuilder;
 import io.github.seonwkim.query.state.InsertStatement;
 import io.github.seonwkim.query.state.InsertStatement.InsertStatementBuilder;
 import io.github.seonwkim.query.state.SelectStatement;
@@ -38,6 +40,7 @@ public class QueryParser extends Parser {
             case INSERT -> insertStatement();
             case UPDATE -> updateStatement();
             case DELETE -> deleteStatement();
+            case FROM -> fromStatement();
             case WHERE -> whereStatement();
             default -> ExpressionStatement.builder().expression(expression()).build();
         };
@@ -65,19 +68,7 @@ public class QueryParser extends Parser {
             }
         }
         builder.fields(fields);
-
-        consumeAndAdvance(TokenType.FROM, "Expect FROM keyword");
-        final Token schemaOrTable = consumeAndAdvance(TokenType.IDENTIFIER,
-                                                      "Expect schema or table databaseName");
-        builder.tableName(schemaOrTable.lexeme());
-
-        if (match(TokenType.DOT)) {
-            advance();
-            final Token table = consumeAndAdvance(TokenType.IDENTIFIER, "Expect table databaseName");
-
-            builder.schemaName(schemaOrTable.lexeme());
-            builder.tableName(table.lexeme());
-        }
+        builder.fromStatement(fromStatement()); 
 
         return builder.build();
     }
@@ -172,9 +163,17 @@ public class QueryParser extends Parser {
      */
     private Statement deleteStatement() {
         consumeAndAdvance(TokenType.DELETE, "Expect DELETE keyword");
+        final DeleteStatement.DeleteStatementBuilder builder = DeleteStatement.builder();
+        return builder.fromStatement(fromStatement()).build();
+    }
+
+    /**
+     * e.g. FROM members
+     */
+    private FromStatement fromStatement() {
         consumeAndAdvance(TokenType.FROM, "Expect FROM keyword");
 
-        final DeleteStatement.DeleteStatementBuilder builder = DeleteStatement.builder();
+        final FromStatementBuilder builder = FromStatement.builder();
         final Token schemaOrTable = consumeAndAdvance(TokenType.IDENTIFIER, "Expect schema or table databaseName");
         final String tableName = schemaOrTable.lexeme();
 
