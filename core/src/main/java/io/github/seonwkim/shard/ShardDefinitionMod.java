@@ -6,11 +6,10 @@ import java.util.Set;
 
 import io.github.seonwkim.Expression;
 import io.github.seonwkim.Nullable;
-import io.github.seonwkim.query.state.expr.ConditionExpression;
-import io.github.seonwkim.query.state.expr.ConditionExpression.ConditionNode;
 import io.github.seonwkim.Token;
 import io.github.seonwkim.TokenType;
-
+import io.github.seonwkim.query.state.expr.ConditionExpression;
+import io.github.seonwkim.query.state.expr.ConditionExpression.ConditionNode;
 import lombok.Getter;
 
 /**
@@ -24,6 +23,7 @@ public class ShardDefinitionMod implements ShardDefinition {
     private final Token column;
     private final Token divisor;
     private final Token result;
+    private ShardHashFunction<Long> hashFunction = LongShardHashFunction.IDENTITY;
 
     // e.g. table_name.column_name % 2 = 0
     private final List<Set<TokenType>> validator = List.of(
@@ -43,6 +43,11 @@ public class ShardDefinitionMod implements ShardDefinition {
         } else {
             throw new IllegalArgumentException("Invalid shard definition: " + definitionStr);
         }
+    }
+
+    public ShardDefinitionMod(String definitionStr, ShardHashFunction<Long> shardHashFunction) {
+        this(definitionStr);
+        this.hashFunction = shardHashFunction;
     }
 
     @Override
@@ -116,13 +121,9 @@ public class ShardDefinitionMod implements ShardDefinition {
             throw new IllegalArgumentException("Left node should be an identifier");
         }
 
-        if (value.getToken().type() != TokenType.NUMBER) {
-            throw new IllegalArgumentException("Right node should be a number");
-        }
-
         if (Objects.equals(identifier.getToken().lexeme(), column.lexeme())) {
-            return Integer.parseInt(value.getToken().lexeme()) % Integer.parseInt(divisor.lexeme())
-                   == Integer.parseInt(result.lexeme());
+            return hashFunction.hash(value.getToken()) % Long.parseLong(divisor.lexeme())
+                   == Long.parseLong(result.lexeme());
         }
 
         return false;
@@ -138,8 +139,8 @@ public class ShardDefinitionMod implements ShardDefinition {
         }
 
         if (Objects.equals(identifier.getToken().lexeme(), column.lexeme())) {
-            return Integer.parseInt(value.getToken().lexeme()) % Integer.parseInt(divisor.lexeme())
-                   != Integer.parseInt(result.lexeme());
+            return hashFunction.hash(value.getToken()) % Long.parseLong(divisor.lexeme())
+                   != Long.parseLong(result.lexeme());
         }
 
         return false;
